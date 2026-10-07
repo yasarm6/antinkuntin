@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AntinKuntin - İnteraktif Deneyimler & Mini Oyunlar</title>
+  <meta name="description" content="Neal.fun tarzı eğlenceli, yaratıcı, interaktif mini oyunlar, tuhaf simülasyonlar ve görsel deneyimler platformu.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="brand" id="brandLogo">
+        <img src="assets/logo.svg" alt="AntinKuntin Logo" class="brand-logo-img">
+      </a>
+      <div class="nav-actions">
+        <button id="themeToggle" class="theme-toggle-btn" aria-label="Temayı Değiştir">
+          ☀️ Aydınlık Mod
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="badge">🎪 Eğlenceli İnteraktif Köşe</div>
+    <h1>İnternetin en <span class="gradient-text">antin kuntin</span> işleri burada.</h1>
+    <p>Zaman öldürmek, ilginç veriler keşfetmek ve eğlenceli mini simülasyonlarla oynamak için tasarlanmış yaratıcı deneyimler koleksiyonu.</p>
+  </section>
+
+  <!-- Category Filters -->
+  <nav class="controls-bar" aria-label="Kategori Filtreleri">
+    <button class="filter-chip active" data-filter="all">Tümü (7)</button>
+    <button class="filter-chip" data-filter="games">Mini Oyunlar</button>
+    <button class="filter-chip" data-filter="explore">Keşif & Veri</button>
+    <button class="filter-chip" data-filter="fun">Absürt & Yaratıcı</button>
+  </nav>
+
+  <!-- Main Grid -->
+  <main class="main-container">
+    <div class="card-grid" id="projectGrid">
+      <!-- Cards rendered via app.js -->
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>Made with ❤️ for curiosity • <a href="HATIRLATMA.md" target="_blank">Proje Hatırlatma & Yol Haritası</a></p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maaşınla Ne Alabilirsin? - AntinKuntin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #f59e0b;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 60px;
+    }
+    header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .back-btn {
+      color: #64748b;
+      text-decoration: none;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .back-btn:hover { color: var(--accent); }
+    .hero {
+      text-align: center;
+      padding: 40px 20px 24px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 4.5vw, 2.8rem);
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 10px;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+    .salary-box {
+      max-width: 540px;
+      margin: 20px auto 40px;
+      background: var(--card);
+      padding: 24px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .salary-presets {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .preset-btn {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #334155;
+    }
+    .preset-btn:hover { background: #e2e8f0; }
+    .input-group {
+      display: flex;
+      align-items: center;
+      background: #f8fafc;
+      border: 2px solid var(--accent);
+      border-radius: 14px;
+      padding: 8px 16px;
+    }
+    .input-group span {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--accent);
+      margin-right: 8px;
+    }
+    .input-group input {
+      border: none;
+      background: transparent;
+      font-size: 1.6rem;
+      font-weight: 900;
+      font-family: inherit;
+      color: var(--text);
+      width: 100%;
+      outline: none;
+    }
+    .results-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .result-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.02);
+      transition: transform 0.2s;
+    }
+    .result-card:hover { transform: translateY(-4px); }
+    .res-emoji { font-size: 48px; margin-bottom: 10px; }
+    .res-amount {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #d97706;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+    .res-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .res-sub {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="../../index.html" class="back-btn">← AntinKuntin Vitrini</a>
+    <div style="font-weight: 700; color: #0f172a;">🪙 Maaş Kıyaslama Aracı</div>
+  </header>
+
+  <section class="hero">
+    <h1>Aylık Gelirinle Neler Yapabilirsin?</h1>
+    <p>Maaşını gir, Türkiye şartlarında kaç çıtır simite, kaç metrekare arziye veya kaç adet çeyrek altına yettiğini anında gör.</p>
+
+    <div class="salary-box">
+      <div class="salary-presets">
+        <button class="preset-btn" onclick="setSalary(17002)">Asgari Ücret (17.002 ₺)</button>
+        <button class="preset-btn" onclick="setSalary(35000)">35.000 ₺</button>
+        <button class="preset-btn" onclick="setSalary(60000)">60.000 ₺</button>
+        <button class="preset-btn" onclick="setSalary(120000)">120.000 ₺</button>
+      </div>
+      <div class="input-group">
+        <span>₺</span>
+        <input type="number" id="salaryInput" value="17002" min="1" step="500">
+      </div>
+    </div>
+  </section>
+
+  <main class="results-container" id="resultsGrid"></main>
+
+  <script>
+    const comparisons = [
+      { name: 'Çıtır Sokak Simidi', unitPrice: 15, emoji: '🥨', desc: 'Kahvaltıların vazgeçilmezi' },
+      { name: 'İnce Belli Çay', unitPrice: 15, emoji: '☕', desc: 'Kıraathane usulü tavşan kanı' },
+      { name: 'Çift Lavaş Dürüm', unitPrice: 200, emoji: '🌯', desc: 'Öğle molası cankurtaranı' },
+      { name: 'Çeyrek Altın', unitPrice: 5200, emoji: '🪙', desc: 'Düğün dernek yadigarı' },
+      { name: 'Togg Şarj Dolumu (Tam Batarya)', unitPrice: 650, emoji: '⚡', desc: 'Yerli elektrikli depo' },
+      { name: '1 Kilo Antep Fıstığı', unitPrice: 950, emoji: '🥜', desc: 'Kilosu altınla yarışan lezzet' },
+      { name: 'İstanbul - Ankara Hızlı Tren Bileti', unitPrice: 430, emoji: '🚄', desc: 'Ekspres seyahat' },
+      { name: 'Boğaz Köprüsü Geçişi', unitPrice: 33, emoji: '🌉', desc: 'Kıtalararası seyahat biletin' },
+      { name: 'Bodrum\'da 1 Top Dondurma', unitPrice: 250, emoji: '🍦', desc: 'Meşhur sosyete tarifesi' }
+    ];
+
+    const inputEl = document.getElementById('salaryInput');
+    const resultsGrid = document.getElementById('resultsGrid');
+
+    function updateCalculations() {
+      const salary = parseFloat(inputEl.value) || 0;
+      resultsGrid.innerHTML = '';
+
+      comparisons.forEach(item => {
+        const count = salary > 0 ? (salary / item.unitPrice).toFixed(1) : 0;
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        card.innerHTML = `
+          <div class="res-emoji">${item.emoji}</div>
+          <div class="res-amount">${parseFloat(count).toLocaleString('tr-TR')}</div>
+          <div class="res-title">${item.name}</div>
+          <div class="res-sub">Tanesi ${item.unitPrice.toLocaleString('tr-TR')} ₺ • ${item.desc}</div>
+        `;
+        resultsGrid.appendChild(card);
+      });
+    }
+
+    window.setSalary = function(val) {
+      inputEl.value = val;
+      updateCalculations();
+    };
+
+    inputEl.addEventListener('input', updateCalculations);
+    updateCalculations();
+  </script>
+</body>
+</html>

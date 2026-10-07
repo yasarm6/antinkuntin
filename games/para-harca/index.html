@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Milyarderin Parasını Bitir - AntinKuntin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --accent: #10b981;
+      --accent-danger: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 60px;
+    }
+    header {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .back-btn {
+      color: #94a3b8;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .back-btn:hover { color: #fff; }
+    .money-tracker {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #fff;
+      text-align: center;
+      padding: 24px 16px;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900;
+      letter-spacing: -1px;
+      box-shadow: 0 8px 30px rgba(16, 185, 129, 0.25);
+    }
+    .container {
+      max-width: 1100px;
+      margin: 32px auto;
+      padding: 0 20px;
+    }
+    .shop-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .item-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .item-icon { font-size: 52px; margin-bottom: 8px; }
+    .item-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+    .item-cost { color: #34d399; font-weight: 700; margin-bottom: 16px; font-size: 1.1rem; }
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-buy { background: var(--accent); color: white; }
+    .btn-sell { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.2); color: white; }
+    .btn-sell:disabled { opacity: 0.3; cursor: not-allowed; }
+    .item-qty {
+      font-size: 1.1rem;
+      font-weight: 800;
+      min-width: 36px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="../../index.html" class="back-btn">← AntinKuntin Vitrini</a>
+    <div style="font-weight: 700; color: #1e293b;">💸 Türk Zengininin Parasını Bitir</div>
+  </header>
+
+  <div class="money-tracker" id="balanceDisplay">₺100.000.000.000</div>
+
+  <div class="container">
+    <div class="shop-grid" id="itemsContainer"></div>
+  </div>
+
+  <script>
+    let balance = 100000000000;
+    const items = [
+      { id: 1, name: 'Çıtır Sokak Simidi', cost: 15, icon: '🥨', count: 0 },
+      { id: 2, name: 'Bol Köpüklü Türk Kahvesi', cost: 80, icon: '☕', count: 0 },
+      { id: 3, name: '1 Kilo Antep Fıstığı', cost: 950, icon: '🥜', count: 0 },
+      { id: 4, name: 'Çeyrek Altın', cost: 5200, icon: '🪙', count: 0 },
+      { id: 5, name: 'Son Model Akıllı Telefon', cost: 85000, icon: '📱', count: 0 },
+      { id: 6, name: 'Sıfır Yerli Otomobil (Togg)', cost: 1800000, icon: '🚗', count: 0 },
+      { id: 7, name: 'Bağdat Caddesi Lüks Daire', cost: 35000000, icon: '🏢', count: 0 },
+      { id: 8, name: 'Bodrum Cennet Koyu Özel Villa', cost: 180000000, icon: '🏖️', count: 0 },
+      { id: 9, name: 'Boğaziçi Tarihi Yalı', cost: 1250000000, icon: '🏰', count: 0 },
+      { id: 10, name: 'Süper Lig Futbol Kulübü', cost: 9500000000, icon: '⚽', count: 0 },
+      { id: 11, name: 'Kendi Özel Televizyon Kanalın', cost: 18000000000, icon: '📺', count: 0 },
+      { id: 12, name: 'Kanal/Köprü Çılgın Projesi', cost: 50000000000, icon: '🌉', count: 0 }
+    ];
+
+    const balanceEl = document.getElementById('balanceDisplay');
+    const containerEl = document.getElementById('itemsContainer');
+
+    function formatMoney(num) {
+      return '₺' + num.toLocaleString('tr-TR');
+    }
+
+    function render() {
+      balanceEl.innerText = formatMoney(balance);
+      containerEl.innerHTML = '';
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+          <div>
+            <div class="item-icon">${item.icon}</div>
+            <div class="item-name">${item.name}</div>
+            <div class="item-cost">${formatMoney(item.cost)}</div>
+          </div>
+          <div class="controls">
+            <button class="btn btn-sell" onclick="sellItem(${item.id})" ${item.count === 0 ? 'disabled' : ''}>Sat</button>
+            <span class="item-qty">${item.count}</span>
+            <button class="btn btn-buy" onclick="buyItem(${item.id})" ${balance < item.cost ? 'disabled' : ''}>Satın Al</button>
+          </div>
+        `;
+        containerEl.appendChild(card);
+      });
+    }
+
+    window.buyItem = function(id) {
+      const item = items.find(i => i.id === id);
+      if (item && balance >= item.cost) {
+        balance -= item.cost;
+        item.count++;
+        render();
+      }
+    };
+
+    window.sellItem = function(id) {
+      const item = items.find(i => i.id === id);
+      if (item && item.count > 0) {
+        balance += item.cost;
+        item.count--;
+        render();
+      }
+    };
+
+    render();
+  </script>
+</body>
+</html>
