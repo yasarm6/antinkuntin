@@ -120,39 +120,90 @@ class AuthService {
     }
   }
 
-  // Register new account
-  register(username, email, password) {
-    const users = this.getUsers();
+  // Register new account (Supabase + Local fallback)
+  async register(username, email, password) {
     const cleanEmail = email.trim().toLowerCase();
+    const cleanUsername = username.trim() || cleanEmail.split('@')[0];
+    const guestFavs = this.getGuestFavorites();
 
+    const sb = window.AntinDB ? window.AntinDB.client : null;
+    if (sb) {
+      try {
+        const { data, error } = await sb.auth.signUp({
+          email: cleanEmail,
+          password: password,
+          options: {
+            data: { username: cleanUsername }
+          }
+        });
+        if (error) {
+          return { success: false, message: error.message };
+        }
+        const newUser = {
+          id: data.user?.id || 'usr_' + Date.now(),
+          username: cleanUsername,
+          email: cleanEmail,
+          favorites: guestFavs,
+          createdAt: new Date().toISOString()
+        };
+        this.setCurrentUser(newUser);
+        return { success: true, user: newUser };
+      } catch (e) {
+        console.warn('Supabase kayıt uyarısı, yerel kaydediliyor:', e);
+      }
+    }
+
+    const users = this.getUsers();
     if (users.some(u => u.email.toLowerCase() === cleanEmail)) {
       return { success: false, message: 'Bu e-posta adresiyle kayıtlı bir hesap zaten var.' };
     }
 
-    // Inherit any guest favorites
-    const guestFavs = this.getGuestFavorites();
-
     const newUser = {
       id: 'usr_' + Date.now(),
-      username: username.trim() || cleanEmail.split('@')[0],
+      username: cleanUsername,
       email: cleanEmail,
-      password: password, // In production this would be hashed via backend
+      password: password,
       favorites: guestFavs,
       createdAt: new Date().toISOString()
     };
 
     users.push(newUser);
     this.saveUsers(users);
-    
-    // Auto-login
     this.setCurrentUser(newUser);
     return { success: true, user: newUser };
   }
 
-  // Login existing account
-  login(email, password) {
-    const users = this.getUsers();
+  // Login existing account (Supabase + Local fallback)
+  async login(email, password) {
     const cleanEmail = email.trim().toLowerCase();
+    const guestFavs = this.getGuestFavorites();
+
+    const sb = window.AntinDB ? window.AntinDB.client : null;
+    if (sb) {
+      try {
+        const { data, error } = await sb.auth.signInWithPassword({
+          email: cleanEmail,
+          password: password
+        });
+        if (error) {
+          return { success: false, message: error.message };
+        }
+        const username = data.user?.user_metadata?.username || cleanEmail.split('@')[0];
+        const loggedUser = {
+          id: data.user.id,
+          username: username,
+          email: cleanEmail,
+          favorites: guestFavs,
+          createdAt: data.user.created_at || new Date().toISOString()
+        };
+        this.setCurrentUser(loggedUser);
+        return { success: true, user: loggedUser };
+      } catch (e) {
+        console.warn('Supabase giriş uyarısı, yerel deneniyor:', e);
+      }
+    }
+
+    const users = this.getUsers();
     const user = users.find(u => u.email.toLowerCase() === cleanEmail);
 
     if (!user) {
@@ -163,10 +214,8 @@ class AuthService {
       return { success: false, message: 'Hatalı şifre girdiniz. Lütfen tekrar deneyin.' };
     }
 
-    // Merge any guest favorites into user favorites
-    const guestFavs = this.getGuestFavorites();
     if (guestFavs.length > 0) {
-      const merged = Array.from(new Set([...user.favorites, ...guestFavs]));
+      const merged = Array.from(new Set([...(user.favorites || []), ...guestFavs]));
       user.favorites = merged;
       this.updateUser(user);
       localStorage.removeItem(this.STORAGE_GUEST_FAVS);
@@ -190,7 +239,11 @@ class AuthService {
     }
   }
 
-  logout() {
+  async logout() {
+    const sb = window.AntinDB ? window.AntinDB.client : null;
+    if (sb) {
+      try { await sb.auth.signOut(); } catch (e) {}
+    }
     localStorage.removeItem(this.STORAGE_ACTIVE_USER);
   }
 
@@ -559,8 +612,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === authModal) closeAuthModal();
   });
 
-  // Handle Form Submission
-  authForm?.addEventListener('submit', (e) => {
+  // Handle Form Submission (Async with Supabase)
+  authForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = authEmail?.value || '';
     const password = authPassword?.value || '';
@@ -570,36 +623,66 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (authMode === 'register') {
-      const username = regUsername?.value || '';
-      const result = auth.register(username, email, password);
-      if (result.success) {
-        showToast(`Hoş geldin, ${result.user.username}! Hesabın oluşturuldu.`);
-        closeAuthModal();
-        updateAuthUI();
+    const prevBtnText = authSubmitBtn ? authSubmitBtn.textContent : '';
+    if (authSubmitBtn) {
+      authSubmitBtn.disabled = true;
+      authSubmitBtn.textContent = 'İşleniyor...';
+    }
+
+    try {
+      if (authMode === 'register') {
+        const username = regUsername?.value || '';
+        const result = await auth.register(username, email, password);
+        if (result.success) {
+          showToast(`Hoş geldin, ${result.user.username}! Hesabın oluşturuldu.`);
+          closeAuthModal();
+          updateAuthUI();
+        } else {
+          alert('Kayıt başarısız: ' + (result.message || 'Bilinmeyen hata'));
+        }
       } else {
-        alert(result.message);
+        const result = await auth.login(email, password);
+        if (result.success) {
+          showToast(`Tekrar hoş geldin, ${result.user.username || 'Oyuncu'}!`);
+          closeAuthModal();
+          updateAuthUI();
+        } else {
+          alert('Giriş başarısız: ' + (result.message || 'Hatalı e-posta veya şifre'));
+        }
       }
-    } else {
-      const result = auth.login(email, password);
-      if (result.success) {
-        showToast(`Tekrar hoş geldin, ${result.user.username || 'Oyuncu'}!`);
-        closeAuthModal();
-        updateAuthUI();
-      } else {
-        alert(result.message);
+    } finally {
+      if (authSubmitBtn) {
+        authSubmitBtn.disabled = false;
+        authSubmitBtn.textContent = prevBtnText;
       }
     }
   });
 
   // Handle Logout
-  logoutBtn?.addEventListener('click', () => {
+  logoutBtn?.addEventListener('click', async () => {
     if (confirm('Hesabından çıkış yapmak istediğine emin misin?')) {
-      auth.logout();
+      await auth.logout();
       showToast('Oturum kapatıldı.');
       updateAuthUI();
     }
   });
+
+  // Supabase Auth State Dinleyicisi
+  if (window.AntinDB && window.AntinDB.client) {
+    window.AntinDB.client.auth.onAuthStateChange((event, session) => {
+      if (session && session.user) {
+        const metaUser = session.user.user_metadata?.username || session.user.email.split('@')[0];
+        const active = auth.getCurrentUser() || {};
+        auth.setCurrentUser({
+          ...active,
+          id: session.user.id,
+          username: metaUser,
+          email: session.user.email
+        });
+        updateAuthUI();
+      }
+    });
+  }
 
   // Initial Load
   updateAuthUI();
