@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memleket Dedikodu Çarkı - AntinKuntin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(22, 28, 45, 0.85);
+      --accent: #8b5cf6;
+      --accent-glow: rgba(139, 92, 246, 0.5);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: radial-gradient(circle at 50% 20%, #1e1538 0%, var(--bg) 70%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    header {
+      background: rgba(10, 14, 25, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .back-btn {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .back-btn:hover {
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+    .brand-title {
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #c084fc, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 1.3rem;
+    }
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px 60px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .hero-info {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    .hero-info h1 {
+      font-size: 2.2rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+      text-shadow: 0 0 20px rgba(192, 132, 252, 0.3);
+    }
+    .hero-info p {
+      color: var(--muted);
+      font-size: 1rem;
+    }
+    .wheel-container {
+      position: relative;
+      width: 360px;
+      height: 360px;
+      max-width: 90vw;
+      max-height: 90vw;
+      margin: 0 auto 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wheel-pointer {
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-top: 32px solid #ef4444;
+      z-index: 30;
+      filter: drop-shadow(0 4px 10px rgba(239, 68, 68, 0.8));
+    }
+    canvas#wheelCanvas {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      box-shadow: 0 0 35px rgba(139, 92, 246, 0.35), 0 0 0 8px rgba(255, 255, 255, 0.08);
+      transition: transform 4s cubic-bezier(0.15, 0.9, 0.2, 1);
+    }
+    .center-pin {
+      position: absolute;
+      width: 56px;
+      height: 56px;
+      background: radial-gradient(circle, #f8fafc 0%, #cbd5e1 100%);
+      border: 4px solid #8b5cf6;
+      border-radius: 50%;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      cursor: pointer;
+      user-select: none;
+    }
+    .controls {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    .spin-btn {
+      background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+      color: #fff;
+      font-family: inherit;
+      font-size: 1.2rem;
+      font-weight: 800;
+      padding: 14px 40px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 25px var(--accent-glow);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      letter-spacing: 0.5px;
+    }
+    .spin-btn:hover:not(:disabled) {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 12px 30px rgba(139, 92, 246, 0.7);
+    }
+    .spin-btn:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+    .spin-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .result-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s;
+      display: none;
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .result-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(139, 92, 246, 0.2);
+      color: #c084fc;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+    .result-title {
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .result-gossip {
+      font-size: 1.15rem;
+      color: #e2e8f0;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .result-challenge {
+      background: rgba(0,0,0,0.3);
+      border-left: 4px solid #8b5cf6;
+      padding: 12px 16px;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 0.95rem;
+      color: #cbd5e1;
+    }
+    .result-challenge strong {
+      color: #facc15;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="../../index.html" class="back-btn">
+      <span>←</span> AntinKuntin'e Dön
+    </a>
+    <div class="brand-title">🎡 Memleket Dedikodu Çarkı</div>
+    <div style="width: 100px;"></div>
+  </header>
+
+  <main class="main-content">
+    <div class="hero-info">
+      <h1>🎡 Çevir Bakalım, Neresi Çıkacak?</h1>
+      <p>81 ilin en meşhur absürt dedikoduları, garip adetleri ve komik görevleri seni bekliyor.</p>
+    </div>
+
+    <div class="wheel-container">
+      <div class="wheel-pointer"></div>
+      <canvas id="wheelCanvas" width="700" height="700"></canvas>
+      <div class="center-pin" id="centerPin">🎯</div>
+    </div>
+
+    <div class="controls">
+      <button class="spin-btn" id="spinBtn">ÇARKI ÇEVİR! 🎲</button>
+    </div>
+
+    <div class="result-card" id="resultCard">
+      <span class="result-tag" id="resPlate">PLAKA: 01</span>
+      <h2 class="result-title" id="resCity">Adana</h2>
+      <p class="result-gossip" id="resGossip">Güneşe ateş edenler, sıcaktan asfaltta sucuk pişirenler... Adana'da sıradan bir salı günü!</p>
+      <div class="result-challenge" id="resTask">
+        <strong>Absürt Görev:</strong> En yakınındaki kişiye 10 saniye boyunca hiç gözünü kırpmadan "Bici bici yemeyen bizden değildir" de!
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const CITIES = [
+      {
+        name: "Adana", plate: "01", color: "#f97316",
+        gossip: "Güneşe ateş açtıkları ve asfaltta gerçekten yumurta/sucuk pişirdikleri doğrudur. Adana'da sinirlenmek bir spordur.",
+        task: "En yakınındaki kişiye çok ciddi bir yüzle 'Güneşe ateş ettim tutmadı' de."
+      },
+      {
+        name: "Trabzon", plate: "61", color: "#0284c7",
+        gossip: "Saat 12'den sonra kafaların şalteri indiği söylenir ama kuymak ve kemençe sesi gelince anında herkes horona kalkar.",
+        task: "15 saniye boyunca kesintisiz Karadeniz şivesiyle haçan konuşmaya çalış."
+      },
+      {
+        name: "İzmir", plate: "35", color: "#14b8a6",
+        gossip: "Simite gevrek, çekirdeğe çiğdem, domatese domat demeyenleri şehre almama referandumu yapmayı düşünürler.",
+        task: "Hızlıca 5 kez art arda 'Gevrek çiğdem domat kordon' de, şaşırırsan bir bardak su iç."
+      },
+      {
+        name: "Ankara", plate: "06", color: "#64748b",
+        gossip: "Denizi yoktur ama Kuğulu Park'taki kuğular deniz etkisi yapar. Gri binaların arasında pavyon ışıkları yol gösterir.",
+        task: "Hemen ayağa kalk ve 10 saniye boyunca hayali kaşıklarla 'Ankara'nın Bağları' oyna."
+      },
+      {
+        name: "Konya", plate: "42", color: "#84cc16",
+        gossip: "Dümdüz ovada kaybolabilen tek şehir. Etliekmeğin boyu boyunu geçer, Mevlana şekeriyle şarj olurlar.",
+        task: "Kendi etrafında 3 tur yavaşça semazen gibi dön ve dengeni koru."
+      },
+      {
+        name: "Bursa", plate: "16", color: "#10b981",
+        gossip: "İskenderin üzerine tereyağı dökülürken çıkan 'cozzz' sesi Bursa'nın milli marşı sayılır.",
+        task: "Ağzın açık şekilde hayali tereyağı dökülme sesi çıkar: 'Cozzzzzzz!'"
+      },
+      {
+        name: "Diyarbakır", plate: "21", color: "#ef4444",
+        gossip: "Karpuzların içine çocuk koyup fotoğraf çektirmek yasal zorunluluktur. Ciğersiz sabah kahvaltısı eksik sayılır.",
+        task: "'Ciğer candır gerisi heyecandır' diye bağır."
+      },
+      {
+        name: "Kayseri", plate: "38", color: "#eab308",
+        gossip: "Pastırmanın kokusunu 5 km öteden alırlar. Ticarette babasına bile iskonto yapmayanların şehridir.",
+        task: "Yanındaki kişiye hemen masadaki bir eşyayı 5 katı fiyatına satmaya çalış."
+      },
+      {
+        name: "Eskişehir", plate: "26", color: "#8b5cf6",
+        gossip: "Porsuk çayı kenarında çimlere yayılıp çiğbörek yemeyen öğrenci derslerden otomatik kalır.",
+        task: "Boğazında sıcak çiğbörek kalmış gibi bir mimik yap."
+      },
+      {
+        name: "Gaziantep", plate: "27", color: "#f43f5e",
+        gossip: "Sabah 6'da beyran içip üzerine baklava gömen, diyeti sadece rüyasında gören gurmeler cenneti.",
+        task: "Gözlerini kapat ve en sevdiğin tatlıyı 10 saniye boyunca aşkla öv."
+      },
+      {
+        name: "Rize", plate: "53", color: "#22c55e",
+        gossip: "Yağmur yağmadığı günlerde halk güneşi görünce paniğe kapılır. Çay bardağı vücudun bir uzvu gibidir.",
+        task: "Çay kaşığıyla bardak karıştırma sesini ağzınla taklit et: 'Çıngır çıngır!'"
+      },
+      {
+        name: "Sivas", plate: "58", color: "#3b82f6",
+        gossip: "Kangal köpekleri kışın dondan kurtulmak için mont giyer, ayazı insanı muma çevirir.",
+        task: "Tir tir titriyormuş gibi yapıp 'Sivas soğuğu vurdu' de."
+      }
+    ];
+
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const spinBtn = document.getElementById('spinBtn');
+    const centerPin = document.getElementById('centerPin');
+    const resultCard = document.getElementById('resultCard');
+    const resPlate = document.getElementById('resPlate');
+    const resCity = document.getElementById('resCity');
+    const resGossip = document.getElementById('resGossip');
+    const resTask = document.getElementById('resTask');
+
+    const numSegments = CITIES.length;
+    const arc = (2 * Math.PI) / numSegments;
+    let currentAngle = 0;
+    let isSpinning = false;
+
+    function drawWheel() {
+      const radius = canvas.width / 2;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < numSegments; i++) {
+        const angle = i * arc;
+        ctx.beginPath();
+        ctx.fillStyle = CITIES[i].color;
+        ctx.moveTo(radius, radius);
+        ctx.arc(radius, radius, radius - 10, angle, angle + arc);
+        ctx.lineTo(radius, radius);
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Metin yaz
+        ctx.save();
+        ctx.translate(radius, radius);
+        ctx.rotate(angle + arc / 2);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 24px Outfit, sans-serif';
+        ctx.shadowColor = 'rgba(0,0,0,0.8)';
+        ctx.shadowBlur = 6;
+        ctx.fillText(CITIES[i].name + " (" + CITIES[i].plate + ")", radius - 35, 8);
+        ctx.restore();
+      }
+    }
+
+    drawWheel();
+
+    function spin() {
+      if (isSpinning) return;
+      isSpinning = true;
+      spinBtn.disabled = true;
+      resultCard.style.display = 'none';
+
+      const randomRounds = 5 + Math.floor(Math.random() * 5); // 5 - 10 tam tur
+      const extraDegrees = Math.floor(Math.random() * 360);
+      const totalDegrees = randomRounds * 360 + extraDegrees;
+      currentAngle += totalDegrees;
+
+      canvas.style.transform = `rotate(${currentAngle}deg)`;
+
+      setTimeout(() => {
+        isSpinning = false;
+        spinBtn.disabled = false;
+
+        // İbre üstte (-90 derece veya 270 derece)
+        // Dönüş açısını mod 360'a göre hesapla
+        const actualRotation = currentAngle % 360;
+        // Pointer saat 12 yönünde (270 derece canvas açısı)
+        // Dönüş saat yönünde olduğu için ters çıkarılır
+        const pointerAngle = (360 - (actualRotation % 360) + 270) % 360;
+        const index = Math.floor((pointerAngle / 360) * numSegments) % numSegments;
+        const selected = CITIES[index];
+
+        resPlate.textContent = `PLAKA: ${selected.plate}`;
+        resCity.textContent = selected.name;
+        resGossip.textContent = selected.gossip;
+        resTask.innerHTML = `<strong>Absürt Görev:</strong> ${selected.task}`;
+        resultCard.style.display = 'block';
+        resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 4000);
+    }
+
+    spinBtn.addEventListener('click', spin);
+    centerPin.addEventListener('click', spin);
+  </script>
+</body>
+</html>

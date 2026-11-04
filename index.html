@@ -1,59 +1,169 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AntinKuntin - İnteraktif Deneyimler & Mini Oyunlar</title>
-  <meta name="description" content="Neal.fun tarzı eğlenceli, yaratıcı, interaktif mini oyunlar, tuhaf simülasyonlar ve görsel deneyimler platformu.">
+  <meta name="description"
+    content="Eğlenceli, yaratıcı, interaktif mini oyunlar, tuhaf simülasyonlar ve görsel deneyimler platformu.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div class="ambient-glow"></div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
   <!-- Header -->
   <header>
     <div class="nav-container">
-      <a href="index.html" class="brand" id="brandLogo">
-        <img src="assets/logo.svg" alt="AntinKuntin Logo" class="brand-logo-img">
-      </a>
-      <div class="nav-actions">
-        <button id="themeToggle" class="theme-toggle-btn" aria-label="Temayı Değiştir">
-          ☀️ Aydınlık Mod
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button id="sidebarToggle" class="sidebar-toggle-btn" aria-label="Favoriler Menüsü">
+          ❤️ Favoriler
         </button>
+        <a href="index.html" class="brand" id="brandLogo">
+          <img src="assets/logo.svg" alt="AntinKuntin Logo" class="brand-logo-img">
+          <div class="brand-text">Antin<span>Kuntin</span></div>
+          <span class="badge-tag">Playground</span>
+        </a>
+      </div>
+
+      <div class="nav-actions">
+        <!-- Logged Out State -->
+        <div id="authLoggedOut" class="auth-logged-out">
+          <button id="openLoginBtn" class="btn-secondary">Giriş Yap</button>
+          <button id="openRegisterBtn" class="btn-primary">Kayıt Ol</button>
+        </div>
+
+        <!-- Logged In State -->
+        <div id="authLoggedIn" class="auth-logged-in" style="display: none;">
+          <div class="user-profile-badge">
+            <div class="user-avatar" id="userAvatarText">Y</div>
+            <div class="user-info">
+              <span class="user-name" id="userNameDisplay">Kullanıcı</span>
+              <span class="user-status">● Çevrimiçi</span>
+            </div>
+          </div>
+          <button id="logoutBtn" class="btn-logout" title="Çıkış Yap" aria-label="Çıkış Yap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="badge">🎪 Eğlenceli İnteraktif Köşe</div>
-    <h1>İnternetin en <span class="gradient-text">antin kuntin</span> işleri burada.</h1>
-    <p>Zaman öldürmek, ilginç veriler keşfetmek ve eğlenceli mini simülasyonlarla oynamak için tasarlanmış yaratıcı deneyimler koleksiyonu.</p>
-  </section>
+  <!-- App Layout: Left Sidebar + Main Content -->
+  <div class="layout-wrapper">
+    <!-- Left Sidebar: Favorilerim -->
+    <aside class="favorites-sidebar" id="favoritesSidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">
+          <span class="heart-icon">❤️</span>
+          <span>Favori Oyunlarım</span>
+        </div>
+        <span class="fav-counter" id="favCounter">0</span>
+      </div>
 
-  <!-- Category Filters -->
-  <nav class="controls-bar" aria-label="Kategori Filtreleri">
-    <button class="filter-chip active" data-filter="all">Tümü (7)</button>
-    <button class="filter-chip" data-filter="games">Mini Oyunlar</button>
-    <button class="filter-chip" data-filter="explore">Keşif & Veri</button>
-    <button class="filter-chip" data-filter="fun">Absürt & Yaratıcı</button>
-  </nav>
+      <div class="favorites-list-container" id="favoritesList">
+        <!-- Rendered dynamically via app.js -->
+      </div>
 
-  <!-- Main Grid -->
-  <main class="main-container">
-    <div class="card-grid" id="projectGrid">
-      <!-- Cards rendered via app.js -->
+      <div class="sidebar-footer">
+        <div class="sync-status">
+          <div class="sync-dot" id="syncDot"></div>
+          <span id="syncStatusText">Favoriler tarayıcıya kayıtlı</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Hero Banner -->
+      <section class="hero-card">
+        <div class="hero-badge">✨ İnteraktif Eğlence & Deneyimler</div>
+        <h1>İnternetin en <span class="highlight">eğlenceli ve yaratıcı</span> işleri burada.</h1>
+        <p>Absürt simülasyonlar, eğlenceli refleks oyunları ve interaktif deneyimler. Beğendiğin oyunları favorilere ekle, dilediğin an kaldığın yerden oyna!</p>
+      </section>
+
+      <!-- Controls & Categories & Search -->
+      <nav class="controls-bar" aria-label="Oyun Filtreleri">
+        <div class="filter-group" id="filterChips">
+          <button class="filter-chip active" data-filter="all">Tümü (<span id="totalGameCount">7</span>)</button>
+          <button class="filter-chip" data-filter="games">Aksiyon & Refleks</button>
+          <button class="filter-chip" data-filter="simulation">Simülasyon & Fizik</button>
+          <button class="filter-chip" data-filter="fun">Absürt & Mizah</button>
+        </div>
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" class="search-input" placeholder="Oyun veya simülasyon ara...">
+        </div>
+      </nav>
+
+      <!-- Game Grid -->
+      <div class="card-grid" id="projectGrid">
+        <!-- Cards rendered via app.js -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Auth Modal (Giriş Yap / Kayıt Ol) -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-box">
+      <button class="modal-close-btn" id="authModalClose" aria-label="Kapat">&times;</button>
+      
+      <div class="auth-header">
+        <h2 id="authModalTitle">Hesabına Giriş Yap</h2>
+        <p id="authModalSubtitle">Favorilerini ve oyun ilerlemelerini güvenle senkronize et.</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="tabLogin" type="button">Giriş Yap</button>
+        <button class="auth-tab-btn" id="tabRegister" type="button">Kayıt Ol</button>
+      </div>
+
+      <form id="authForm" class="auth-form" onsubmit="return false;">
+        <div class="form-group" id="usernameGroup" style="display: none;">
+          <label for="regUsername">Kullanıcı Adı</label>
+          <input type="text" id="regUsername" class="form-input" placeholder="ör. AntinOyuncu" autocomplete="username">
+        </div>
+
+        <div class="form-group">
+          <label for="authEmail">E-Posta Adresi</label>
+          <input type="email" id="authEmail" class="form-input" placeholder="adiniz@ornek.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="authPassword">Şifre</label>
+          <input type="password" id="authPassword" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" id="authSubmitBtn" class="auth-submit-btn">Giriş Yap</button>
+      </form>
+
+      <div class="auth-notice">
+        💡 <strong>Geleceğe Hazır Mimari:</strong> Kullanıcı verileri ve favoriler şu anda yerel depolama (LocalStorage) üzerinde güvenle saklanır, gerçek backend'e geçildiğinde tek tıkla taşınabilir.
+      </div>
     </div>
-  </main>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
 
   <!-- Footer -->
   <footer>
-    <p>Made with ❤️ for curiosity • <a href="HATIRLATMA.md" target="_blank">Proje Hatırlatma & Yol Haritası</a></p>
+    <p>© 2026 AntinKuntin. Made by Yaşar. <a href="HATIRLATMA.md" target="_blank">Proje Hatırlatma & Yol Haritası</a></p>
   </footer>
 
   <script src="app.js"></script>
 </body>
+
 </html>

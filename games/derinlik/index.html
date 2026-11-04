@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İstanbul'un Altına İn - AntinKuntin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #030712;
+      --accent: #38bdf8;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(3, 7, 18, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .back-btn {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s;
+    }
+    .back-btn:hover {
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    }
+    .depth-hud {
+      position: fixed;
+      right: 25px;
+      top: 80px;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 14px 20px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      text-align: right;
+    }
+    .depth-hud .meter {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+    }
+    .depth-hud .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+    .scroll-guide {
+      position: fixed;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px 24px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: pulse 2s infinite;
+      pointer-events: none;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.8; transform: translateX(-50%) translateY(0); }
+      50% { opacity: 1; transform: translateX(-50%) translateY(4px); }
+    }
+    .deep-container {
+      position: relative;
+      width: 100%;
+      height: 6000px;
+      background: linear-gradient(
+        180deg,
+        #7dd3fc 0%,
+        #38bdf8 300px,
+        #1e293b 800px,
+        #0f172a 1600px,
+        #172554 2600px,
+        #090d16 3800px,
+        #450a0a 5000px,
+        #180303 6000px
+      );
+    }
+    .layer-item {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 650px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(12px);
+      transition: transform 0.3s ease;
+    }
+    .layer-item:hover {
+      transform: translateX(-50%) scale(1.02);
+      border-color: var(--accent);
+    }
+    .layer-depth {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(56, 189, 248, 0.2);
+      color: var(--accent);
+      font-weight: 800;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+    .layer-title {
+      font-size: 1.6rem;
+      font-weight: 900;
+      margin-bottom: 10px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .layer-desc {
+      font-size: 1rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+    .layer-fact {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.15);
+      font-size: 0.9rem;
+      color: #fbbf24;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="../../index.html" class="back-btn">
+      <span>←</span> AntinKuntin'e Dön
+    </a>
+    <div style="font-weight: 900; font-size: 1.2rem; color: #38bdf8;">⛏️ İstanbul'un Altına İn</div>
+    <div style="width: 100px;"></div>
+  </header>
+
+  <div class="depth-hud">
+    <div class="meter" id="depthVal">-0 m</div>
+    <div class="label">Mevcut Derinlik</div>
+  </div>
+
+  <div class="scroll-guide">
+    <span>⬇️</span> Aşağı kaydırarak yerin dibine in
+  </div>
+
+  <div class="deep-container" id="deepContainer">
+    <!-- 0m Yeryüzü -->
+    <div class="layer-item" style="top: 250px;">
+      <span class="layer-depth">0 Metre • Yeryüzü</span>
+      <h2 class="layer-title"><span>🏙️</span> Galata Köprüsü & Simitçiler</h2>
+      <p class="layer-desc">Boğaz havası, martı sesleri, balık tutanlar ve kornalar. İstanbul'un günlük keşmekeşi ve güneş ışığı tam burada biter.</p>
+      <div class="layer-fact">💡 İstanbul'da her gün yaklaşık 15 milyon insan bu seviyede adım atıyor.</div>
+    </div>
+
+    <!-- -5m Altyapı -->
+    <div class="layer-item" style="top: 900px;">
+      <span class="layer-depth">-5 Metre • İlk Katman</span>
+      <h2 class="layer-title"><span>⚡</span> İSKİ Su Boruları ve Fiber Kablolar</h2>
+      <p class="layer-desc">Kaldırımı 2 metre kazınca karşımıza çıkan sonsuz kablo karmaşası. İnternetin, elektriğin ve kanalizasyonun gizli damarları.</p>
+      <div class="layer-fact">💡 Türkiye internet trafiğinin %65'inden fazlası bu kablolardan geçiyor.</div>
+    </div>
+
+    <!-- -12m Sarnıçlar -->
+    <div class="layer-item" style="top: 1700px;">
+      <span class="layer-depth">-12 Metre • Tarihi Yeraltı</span>
+      <h2 class="layer-title"><span>🏛️</span> Yerebatan Sarnıcı & Medusa Başı</h2>
+      <p class="layer-desc">Bizans döneminden kalma 336 mermer sütun, loş ışıklar, yankılanan su damlaları ve ters duran gizemli Medusa başı.</p>
+      <div class="layer-fact">💡 80.000 ton su tutma kapasitesiyle imparator sarayının su ihtiyacını karşılıyordu.</div>
+    </div>
+
+    <!-- -28m Metro Hatları -->
+    <div class="layer-item" style="top: 2600px;">
+      <span class="layer-depth">-28 Metre • Raylı Sistemler</span>
+      <h2 class="layer-title"><span>🚇</span> M2 Yenikapı - Hacıosman Metro Hattı</h2>
+      <p class="layer-desc">Sabah saatlerinde yürüyen merdivenlerin hiç bitmediği, akbil seslerinin ve tren rüzgarının estiği metro tünelleri.</p>
+      <div class="layer-fact">💡 Şişhane ve Taksim istasyonlarında derinlik 30 metrenin üzerine çıkmaktadır.</div>
+    </div>
+
+    <!-- -60m Marmaray -->
+    <div class="layer-item" style="top: 3600px;">
+      <span class="layer-depth">-60 Metre • Deniz Tabanının Altı</span>
+      <h2 class="layer-title"><span>🌊</span> Marmaray Boğaz Batırma Tüp Tüneli</h2>
+      <p class="layer-desc">Boğaz'ın güçlü akıntılarının tam 60 metre altında, kıtalararası yolculuk yapan trenler. Dünyanın en derin batırma tüp tüneli.</p>
+      <div class="layer-fact">💡 Tünel montajı sırasında antik Theodosius Limanı kalıntıları ve 37 batık gemi bulundu.</div>
+    </div>
+
+    <!-- -71m Gayrettepe M11 -->
+    <div class="layer-item" style="top: 4500px;">
+      <span class="layer-depth">-72 Metre • En Derin İstasyon</span>
+      <h2 class="layer-title"><span>🚀</span> Gayrettepe Havalimanı Metro İstasyonu</h2>
+      <p class="layer-desc">Türkiye'nin en derin metro istasyonu. Yürüyen merdivenlerle inmek neredeyse 4-5 dakika sürüyor!</p>
+      <div class="layer-fact">💡 Tam 72 metre derinlik, yaklaşık 24 katlı bir gökdelenin yerin altına gömülmesine eşittir.</div>
+    </div>
+
+    <!-- -150m Fay Hattı ve Magma -->
+    <div class="layer-item" style="top: 5400px;">
+      <span class="layer-depth">-150+ Metre • Jeolojik Katman</span>
+      <h2 class="layer-title"><span>🌋</span> Kuzey Anadolu Fay Hattı & Jeolojik Zemin</h2>
+      <p class="layer-desc">İnsan elinin değmediği sert granit ve şist kayalar. Milyonlarca yıldır bekleyen dev tektonik tabakalar ve yer ısısı.</p>
+      <div class="layer-fact">💡 Tebrikler! İstanbul'un en gizemli derinliklerine kadar indin.</div>
+    </div>
+  </div>
+
+  <script>
+    const depthVal = document.getElementById('depthVal');
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      // 0 - 5500px scroll aralığını 0 ile 160 metre arasına oranlayalım
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = Math.min(Math.max(scrollY / maxScroll, 0), 1);
+      const calculatedDepth = Math.round(progress * 160);
+      depthVal.textContent = `-${calculatedDepth} m`;
+    });
+  </script>
+</body>
+</html>

@@ -1,53 +1,43 @@
-const PROJECTS_DATA = [
+// ==========================================================================
+// AntinKuntin - Core Platform Application Logic
+// Features: Modern Game Library, PotatoBros integration,
+// Left Sidebar Favorites, Account System (Register/Login & State Syncing)
+// ==========================================================================
+
+const GAMES_DATA = [
+  {
+    id: 'potatobros',
+    title: 'PotatoBros: Arena Hayatta Kalma',
+    tag: 'Aksiyon & Hayatta Kalma',
+    category: 'games',
+    emoji: '🥔',
+    isNew: true,
+    color: '#0284c7',
+    iconBg: '#e0f2fe',
+    desc: 'Brotato tarzı hızlı arena aksiyonu! Dalgadan dalgaya düşmanları biç, patates gücünü artır ve sonuna kadar hayatta kal.',
+    url: 'potatobros.html'
+  },
   {
     id: 'kum-havuzu',
     title: 'Piksel Kum Havuzu (Sandboxels)',
-    tag: 'Simülatör & Fizik',
-    category: 'games',
+    tag: 'Fizik & Simülasyon',
+    category: 'simulation',
     emoji: '⏳',
-    bgGradient: 'linear-gradient(135deg, #eab308 0%, #ca8a04 100%)',
-    desc: 'Neal.fun klasiği! 500\'den fazla element, lav, su, elektrik, asit ve nükleer reaksiyonlarla sınırsız piksel deneyi.',
+    color: '#eab308',
+    iconBg: '#fef3c7',
+    desc: 'Neal.fun klasiği! 500\'den fazla element, lav, su, elektrik, asit ve yaşam formlarıyla piksel deneyleri yap.',
     url: 'games/kum-havuzu/index.html'
   },
   {
     id: 'para-harca',
-    title: 'Türk Zengininin Parasını Bitir',
+    title: 'Türk Zengini Serveti Bitir',
     tag: 'Simülasyon',
-    category: 'games',
+    category: 'simulation',
     emoji: '💸',
-    bgGradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-    desc: '100 Milyar TL servetle Boğaz yalısı, Togg filoları, çeyrek altın ve Süper Lig takımı alarak parayı sıfırlamaya çalış.',
+    color: '#10b981',
+    iconBg: '#d1fae5',
+    desc: '100 Milyar TL dev bütçe ile Boğaz yalıları, Togg filoları, çeyrek altın alıp serveti sıfırlamaya çalış!',
     url: 'games/para-harca/index.html'
-  },
-  {
-    id: 'turkiye-sayaci',
-    title: 'Şu Anda Türkiye\'de Ne Oluyor?',
-    tag: 'Canlı Veri',
-    category: 'explore',
-    emoji: '🇹🇷',
-    bgGradient: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
-    desc: 'Sayfayı açtığından bu yana demlenen ince belli çaylar, trafikte korna çalanlar, pişirilen simitler.',
-    url: 'games/turkiye-sayaci/index.html'
-  },
-  {
-    id: 'asgari-karsilastir',
-    title: 'Maaşınla Ne Alabiliyorsun?',
-    tag: 'Absürt Kıyas',
-    category: 'explore',
-    emoji: '🪙',
-    bgGradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-    desc: 'Maaşını gir, kaç bin tane simite, kaç metre Boğaz Köprüsü asfaltına veya kaç gram fıstığa denk geldiğini gör.',
-    url: 'games/asgari-karsilastir/index.html'
-  },
-  {
-    id: 'memleket-carki',
-    title: 'Memleket Dedikodu Çarkı',
-    tag: 'Mizah & Eğlence',
-    category: 'fun',
-    emoji: '🎡',
-    bgGradient: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-    desc: 'Çarkı çevir; 81 ilden rastgele absürt bir şehir efsanesi, yöresel adet veya garip bir görev kazan.',
-    url: '#'
   },
   {
     id: 'metrobuse-bin',
@@ -55,95 +45,562 @@ const PROJECTS_DATA = [
     tag: 'Refleks Oyunu',
     category: 'games',
     emoji: '🚌',
-    bgGradient: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-    desc: 'Zincirlikuyu aktarmasında kapı açılınca içeri adım atabilecek misin? 10 saniyelik gerilim testi!',
+    color: '#06b6d4',
+    iconBg: '#cffafe',
+    desc: 'Zincirlikuyu aktarmasında kapı açılınca ezilmeden içeri adım atabilecek misin? Reflekslerini sına!',
     url: 'games/metrobuse-bin/index.html'
+  },
+  {
+    id: 'asgari-karsilastir',
+    title: 'Maaşınla Ne Alabiliyorsun?',
+    tag: 'Absürt Kıyas',
+    category: 'fun',
+    emoji: '🪙',
+    color: '#f59e0b',
+    iconBg: '#fef3c7',
+    desc: 'Maaşını gir; kaç bin tane çıtır simite veya kaç metre köprü asfaltına denk geldiğini anında hesapla.',
+    url: 'games/asgari-karsilastir/index.html'
+  },
+  {
+    id: 'memleket-carki',
+    title: 'Memleket Dedikodu Çarkı',
+    tag: 'Mizah & Oyun',
+    category: 'fun',
+    emoji: '🎡',
+    color: '#8b5cf6',
+    iconBg: '#ede9fe',
+    desc: 'Çarkı çevir; 81 ilden rastgele absürt şehir efsaneleri, yöresel dedikodular ve eğlenceli görevler kazan!',
+    url: 'games/memleket-carki/index.html'
   },
   {
     id: 'derinlik',
     title: 'İstanbul\'un Altına İn',
     tag: 'İnteraktif Skrol',
-    category: 'explore',
+    category: 'simulation',
     emoji: '⛏️',
-    bgGradient: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-    desc: 'Aşağı kaydırdıkça Marmaray\'ın, Bizans sarnıçlarının ve metro tünellerinin derinliklerine in.',
-    url: '#'
+    color: '#3b82f6',
+    iconBg: '#dbeafe',
+    desc: 'Aşağı kaydırdıkça Marmaray\'ın, Bizans sarnıçlarının ve derin metro tünellerinin gizemlerine in.',
+    url: 'games/derinlik/index.html'
   }
 ];
 
-document.addEventListener('DOMContentLoaded', () => {
-  const gridContainer = document.getElementById('projectGrid');
-  const themeToggle = document.getElementById('themeToggle');
-  const filterChips = document.querySelectorAll('.filter-chip');
-
-  // Theme Management (Default clean light with color accents)
-  const savedTheme = localStorage.getItem('ak-theme') || 'light';
-  document.documentElement.setAttribute('data-theme', savedTheme);
-  updateThemeIcon(savedTheme);
-
-  themeToggle?.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('ak-theme', newTheme);
-    updateThemeIcon(newTheme);
-  });
-
-  function updateThemeIcon(theme) {
-    if (!themeToggle) return;
-    themeToggle.innerHTML = theme === 'dark' ? '☀️ Aydınlık Mod' : '🌙 Gece Modu';
+// ==========================================================================
+// Account & Favorites Persistence Service
+// ==========================================================================
+class AuthService {
+  constructor() {
+    this.STORAGE_USERS_KEY = 'antinkuntin_registered_users';
+    this.STORAGE_ACTIVE_USER = 'antinkuntin_current_session';
+    this.STORAGE_GUEST_FAVS = 'antinkuntin_guest_favorites';
   }
 
-  // Render Cards
-  function renderCards(filter = 'all') {
-    if (!gridContainer) return;
-    gridContainer.innerHTML = '';
+  // Get all registered users from localStorage
+  getUsers() {
+    try {
+      const data = localStorage.getItem(this.STORAGE_USERS_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      return [];
+    }
+  }
 
-    const filtered = filter === 'all' 
-      ? PROJECTS_DATA 
-      : PROJECTS_DATA.filter(p => p.category === filter);
+  // Save users array
+  saveUsers(users) {
+    localStorage.setItem(this.STORAGE_USERS_KEY, JSON.stringify(users));
+  }
 
-    filtered.forEach(project => {
-      const card = document.createElement('a');
-      card.className = 'card';
-      card.href = project.url;
-      if (project.url === '#') {
-        card.onclick = (e) => {
-          e.preventDefault();
-          alert(`"${project.title}" geliştirme aşamasında! Görüşlerinize göre ilk eklenecek.`);
-        };
+  // Get currently active logged-in user session
+  getCurrentUser() {
+    try {
+      const data = localStorage.getItem(this.STORAGE_ACTIVE_USER);
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Register new account
+  register(username, email, password) {
+    const users = this.getUsers();
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (users.some(u => u.email.toLowerCase() === cleanEmail)) {
+      return { success: false, message: 'Bu e-posta adresiyle kayıtlı bir hesap zaten var.' };
+    }
+
+    // Inherit any guest favorites
+    const guestFavs = this.getGuestFavorites();
+
+    const newUser = {
+      id: 'usr_' + Date.now(),
+      username: username.trim() || cleanEmail.split('@')[0],
+      email: cleanEmail,
+      password: password, // In production this would be hashed via backend
+      favorites: guestFavs,
+      createdAt: new Date().toISOString()
+    };
+
+    users.push(newUser);
+    this.saveUsers(users);
+    
+    // Auto-login
+    this.setCurrentUser(newUser);
+    return { success: true, user: newUser };
+  }
+
+  // Login existing account
+  login(email, password) {
+    const users = this.getUsers();
+    const cleanEmail = email.trim().toLowerCase();
+    const user = users.find(u => u.email.toLowerCase() === cleanEmail);
+
+    if (!user) {
+      return { success: false, message: 'Bu e-posta adresine ait bir hesap bulunamadı.' };
+    }
+
+    if (user.password !== password) {
+      return { success: false, message: 'Hatalı şifre girdiniz. Lütfen tekrar deneyin.' };
+    }
+
+    // Merge any guest favorites into user favorites
+    const guestFavs = this.getGuestFavorites();
+    if (guestFavs.length > 0) {
+      const merged = Array.from(new Set([...user.favorites, ...guestFavs]));
+      user.favorites = merged;
+      this.updateUser(user);
+      localStorage.removeItem(this.STORAGE_GUEST_FAVS);
+    }
+
+    this.setCurrentUser(user);
+    return { success: true, user: user };
+  }
+
+  setCurrentUser(user) {
+    localStorage.setItem(this.STORAGE_ACTIVE_USER, JSON.stringify(user));
+  }
+
+  updateUser(updatedUser) {
+    const users = this.getUsers();
+    const index = users.findIndex(u => u.id === updatedUser.id);
+    if (index !== -1) {
+      users[index] = updatedUser;
+      this.saveUsers(users);
+      this.setCurrentUser(updatedUser);
+    }
+  }
+
+  logout() {
+    localStorage.removeItem(this.STORAGE_ACTIVE_USER);
+  }
+
+  // Guest favorites storage
+  getGuestFavorites() {
+    try {
+      const data = localStorage.getItem(this.STORAGE_GUEST_FAVS);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  saveGuestFavorites(favs) {
+    localStorage.setItem(this.STORAGE_GUEST_FAVS, JSON.stringify(favs));
+  }
+
+  // Get current active favorites list
+  getActiveFavorites() {
+    const currentUser = this.getCurrentUser();
+    if (currentUser) {
+      return currentUser.favorites || [];
+    }
+    return this.getGuestFavorites();
+  }
+
+  // Toggle favorite game
+  toggleFavorite(gameId) {
+    const currentUser = this.getCurrentUser();
+    let isFavorited = false;
+
+    if (currentUser) {
+      let favs = currentUser.favorites || [];
+      if (favs.includes(gameId)) {
+        favs = favs.filter(id => id !== gameId);
+        isFavorited = false;
+      } else {
+        favs.push(gameId);
+        isFavorited = true;
       }
+      currentUser.favorites = favs;
+      this.updateUser(currentUser);
+      return { isFavorited, count: favs.length, syncedWithAccount: true };
+    } else {
+      let favs = this.getGuestFavorites();
+      if (favs.includes(gameId)) {
+        favs = favs.filter(id => id !== gameId);
+        isFavorited = false;
+      } else {
+        favs.push(gameId);
+        isFavorited = true;
+      }
+      this.saveGuestFavorites(favs);
+      return { isFavorited, count: favs.length, syncedWithAccount: false };
+    }
+  }
+}
 
-      card.innerHTML = `
-        <div class="card-preview" style="background: ${project.bgGradient};">
-          <span class="card-emoji">${project.emoji}</span>
-        </div>
-        <div class="card-content">
-          <div class="card-title">
-            <span>${project.title}</span>
-            <span class="card-tag">${project.tag}</span>
-          </div>
-          <p class="card-desc">${project.desc}</p>
-          <div class="card-footer">
-            <span>Deneyimi Başlat</span>
-            <span class="arrow">→</span>
-          </div>
+const auth = new AuthService();
+
+// ==========================================================================
+// UI Controller
+// ==========================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // Main Elements
+  const projectGrid = document.getElementById('projectGrid');
+  const favoritesList = document.getElementById('favoritesList');
+  const favCounter = document.getElementById('favCounter');
+  const totalGameCount = document.getElementById('totalGameCount');
+  const searchInput = document.getElementById('searchInput');
+  const filterChips = document.querySelectorAll('.filter-chip');
+  const syncStatusText = document.getElementById('syncStatusText');
+  const syncDot = document.getElementById('syncDot');
+
+  // Mobile Sidebar
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const favoritesSidebar = document.getElementById('favoritesSidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+  // Auth Elements
+  const authLoggedOut = document.getElementById('authLoggedOut');
+  const authLoggedIn = document.getElementById('authLoggedIn');
+  const openLoginBtn = document.getElementById('openLoginBtn');
+  const openRegisterBtn = document.getElementById('openRegisterBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const userNameDisplay = document.getElementById('userNameDisplay');
+  const userAvatarText = document.getElementById('userAvatarText');
+
+  // Modal Elements
+  const authModal = document.getElementById('authModal');
+  const authModalClose = document.getElementById('authModalClose');
+  const authModalTitle = document.getElementById('authModalTitle');
+  const authModalSubtitle = document.getElementById('authModalSubtitle');
+  const tabLogin = document.getElementById('tabLogin');
+  const tabRegister = document.getElementById('tabRegister');
+  const usernameGroup = document.getElementById('usernameGroup');
+  const regUsername = document.getElementById('regUsername');
+  const authEmail = document.getElementById('authEmail');
+  const authPassword = document.getElementById('authPassword');
+  const authSubmitBtn = document.getElementById('authSubmitBtn');
+  const authForm = document.getElementById('authForm');
+  const toastContainer = document.getElementById('toastContainer');
+
+  let currentFilter = 'all';
+  let searchQuery = '';
+  let authMode = 'login'; // 'login' or 'register'
+
+  if (totalGameCount) {
+    totalGameCount.textContent = GAMES_DATA.length;
+  }
+
+  // Toast Notification Helper
+  function showToast(message, isFav = false) {
+    if (!toastContainer) return;
+    const toast = document.createElement('div');
+    toast.className = `toast ${isFav ? 'toast-fav' : ''}`;
+    toast.innerHTML = `
+      <span>${isFav ? '❤️' : '✨'}</span>
+      <span>${message}</span>
+    `;
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+      toast.style.transition = 'all 0.3s ease';
+      setTimeout(() => toast.remove(), 300);
+    }, 3200);
+  }
+
+  // Update Header Auth Status Display
+  function updateAuthUI() {
+    const currentUser = auth.getCurrentUser();
+    if (currentUser) {
+      if (authLoggedOut) authLoggedOut.style.display = 'none';
+      if (authLoggedIn) authLoggedIn.style.display = 'flex';
+      
+      const displayName = currentUser.username || currentUser.email.split('@')[0];
+      if (userNameDisplay) userNameDisplay.textContent = displayName;
+      if (userAvatarText) userAvatarText.textContent = displayName.charAt(0).toUpperCase();
+
+      if (syncStatusText) syncStatusText.textContent = `${displayName} hesabıyla senkronize`;
+      if (syncDot) {
+        syncDot.className = 'sync-dot';
+      }
+    } else {
+      if (authLoggedOut) authLoggedOut.style.display = 'flex';
+      if (authLoggedIn) authLoggedIn.style.display = 'none';
+
+      if (syncStatusText) syncStatusText.textContent = 'Favoriler tarayıcıya kayıtlı';
+      if (syncDot) {
+        syncDot.className = 'sync-dot offline';
+      }
+    }
+
+    renderFavorites();
+    renderGameGrid();
+  }
+
+  // Render Left Sidebar Favorites
+  function renderFavorites() {
+    if (!favoritesList) return;
+    const favIds = auth.getActiveFavorites();
+    const favGames = GAMES_DATA.filter(g => favIds.includes(g.id));
+
+    if (favCounter) {
+      favCounter.textContent = favGames.length;
+    }
+
+    if (favGames.length === 0) {
+      favoritesList.innerHTML = `
+        <div class="favorites-empty">
+          <div class="empty-icon">⭐</div>
+          <p>Henüz favori oyunun yok.</p>
+          <div class="empty-tip">Beğendiğin oyunların kartındaki kalp (❤️) butonuna tıkla!</div>
         </div>
       `;
-      gridContainer.appendChild(card);
+      return;
+    }
+
+    favoritesList.innerHTML = favGames.map(game => `
+      <div class="fav-item">
+        <a href="${game.url}" class="fav-item-main" title="${game.title} Oyununu Aç">
+          <span class="fav-item-emoji">${game.emoji}</span>
+          <span class="fav-item-title">${game.title}</span>
+        </a>
+        <button class="fav-remove-btn" data-remove-fav="${game.id}" title="Favorilerden Çıkar" aria-label="Favorilerden Çıkar">
+          ✕
+        </button>
+      </div>
+    `).join('');
+
+    // Attach remove listeners
+    favoritesList.querySelectorAll('[data-remove-fav]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-remove-fav');
+        const game = GAMES_DATA.find(g => g.id === id);
+        auth.toggleFavorite(id);
+        renderFavorites();
+        renderGameGrid();
+        showToast(`"${game?.title || 'Oyun'}" favorilerden çıkarıldı.`);
+      });
     });
   }
 
-  // Filter Event Listeners
+  // Render Main Game Cards
+  function renderGameGrid() {
+    if (!projectGrid) return;
+    const favIds = auth.getActiveFavorites();
+
+    const filtered = GAMES_DATA.filter(game => {
+      // Category filter
+      const matchesCategory = currentFilter === 'all' || game.category === currentFilter;
+      // Search filter
+      const matchesSearch = searchQuery === '' || 
+        game.title.toLowerCase().includes(searchQuery) ||
+        game.desc.toLowerCase().includes(searchQuery) ||
+        game.tag.toLowerCase().includes(searchQuery);
+
+      return matchesCategory && matchesSearch;
+    });
+
+    if (filtered.length === 0) {
+      projectGrid.innerHTML = `
+        <div style="grid-column: 1 / -1; background: #ffffff; border: 1px dashed #bae6fd; border-radius: 16px; padding: 48px 24px; text-align: center; color: #64748b;">
+          <div style="font-size: 2.5rem; margin-bottom: 12px;">🔍</div>
+          <h3 style="color: #0f172a; margin-bottom: 8px;">Sonuç Bulunamadı</h3>
+          <p>Aramanızla eşleşen bir oyun bulunamadı. Lütfen farklı anahtar kelimeler deneyin.</p>
+        </div>
+      `;
+      return;
+    }
+
+    projectGrid.innerHTML = filtered.map(game => {
+      const isFav = favIds.includes(game.id);
+      return `
+        <div class="game-card">
+          <div class="card-top">
+            <div class="card-icon-wrap" style="background: ${game.iconBg};">
+              <span>${game.emoji}</span>
+            </div>
+            <button class="card-fav-btn ${isFav ? 'is-favorited' : ''}" 
+                    data-toggle-fav="${game.id}" 
+                    title="${isFav ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}"
+                    aria-label="Favori Butonu">
+              ${isFav ? '❤️' : '🤍'}
+            </button>
+          </div>
+
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span class="card-tag">${game.tag}</span>
+            ${game.isNew ? '<span class="card-tag tag-new">🔥 Yeni Eklendi</span>' : ''}
+          </div>
+
+          <h3 class="card-title">${game.title}</h3>
+          <p class="card-desc">${game.desc}</p>
+
+          <div class="card-footer">
+            <span style="font-size: 0.78rem; font-weight: 600; color: #64748b;">🎮 Tarayıcıda Hemen Oyna</span>
+            <a href="${game.url}" class="card-play-btn">
+              <span>Oyna</span>
+              <span>➜</span>
+            </a>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Attach favorite toggle listeners
+    projectGrid.querySelectorAll('[data-toggle-fav]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = btn.getAttribute('data-toggle-fav');
+        const game = GAMES_DATA.find(g => g.id === id);
+        const res = auth.toggleFavorite(id);
+        
+        renderFavorites();
+        renderGameGrid();
+
+        if (res.isFavorited) {
+          showToast(`"${game?.title}" favorilerine eklendi!`, true);
+        } else {
+          showToast(`"${game?.title}" favorilerden çıkarıldı.`);
+        }
+      });
+    });
+  }
+
+  // Filter Chip Click Handling
   filterChips.forEach(chip => {
     chip.addEventListener('click', () => {
       filterChips.forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
-      const category = chip.getAttribute('data-filter') || 'all';
-      renderCards(category);
+      currentFilter = chip.getAttribute('data-filter');
+      renderGameGrid();
     });
   });
 
-  // Initial render
-  renderCards('all');
+  // Search Input Handling
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.toLowerCase().trim();
+      renderGameGrid();
+    });
+  }
+
+  // Mobile Sidebar Toggle
+  if (sidebarToggle && favoritesSidebar && sidebarOverlay) {
+    sidebarToggle.addEventListener('click', () => {
+      favoritesSidebar.classList.toggle('mobile-open');
+      sidebarOverlay.classList.toggle('active');
+    });
+
+    sidebarOverlay.addEventListener('click', () => {
+      favoritesSidebar.classList.remove('mobile-open');
+      sidebarOverlay.classList.remove('active');
+    });
+  }
+
+  // ==========================================================================
+  // Auth Modal & Form Handling
+  // ==========================================================================
+  function setAuthMode(mode) {
+    authMode = mode;
+    if (mode === 'login') {
+      tabLogin?.classList.add('active');
+      tabRegister?.classList.remove('active');
+      if (authModalTitle) authModalTitle.textContent = 'Hesabına Giriş Yap';
+      if (authModalSubtitle) authModalSubtitle.textContent = 'Favorilerini ve oyun ilerlemelerini güvenle senkronize et.';
+      if (usernameGroup) usernameGroup.style.display = 'none';
+      if (authSubmitBtn) authSubmitBtn.textContent = 'Giriş Yap';
+    } else {
+      tabRegister?.classList.add('active');
+      tabLogin?.classList.remove('active');
+      if (authModalTitle) authModalTitle.textContent = 'Yeni Hesap Oluştur';
+      if (authModalSubtitle) authModalSubtitle.textContent = 'Oyunlarını kaydet, favorilerini tüm cihazlarında taşı.';
+      if (usernameGroup) usernameGroup.style.display = 'flex';
+      if (authSubmitBtn) authSubmitBtn.textContent = 'Hesabımı Oluştur';
+    }
+  }
+
+  function openAuthModal(mode = 'login') {
+    setAuthMode(mode);
+    if (authModal) authModal.classList.add('active');
+    setTimeout(() => {
+      if (mode === 'register' && regUsername) regUsername.focus();
+      else if (authEmail) authEmail.focus();
+    }, 150);
+  }
+
+  function closeAuthModal() {
+    if (authModal) authModal.classList.remove('active');
+    if (authForm) authForm.reset();
+  }
+
+  openLoginBtn?.addEventListener('click', () => openAuthModal('login'));
+  openRegisterBtn?.addEventListener('click', () => openAuthModal('register'));
+  authModalClose?.addEventListener('click', closeAuthModal);
+
+  tabLogin?.addEventListener('click', () => setAuthMode('login'));
+  tabRegister?.addEventListener('click', () => setAuthMode('register'));
+
+  authModal?.addEventListener('click', (e) => {
+    if (e.target === authModal) closeAuthModal();
+  });
+
+  // Handle Form Submission
+  authForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = authEmail?.value || '';
+    const password = authPassword?.value || '';
+
+    if (!email || !password) {
+      alert('Lütfen e-posta ve şifre alanlarını doldurun.');
+      return;
+    }
+
+    if (authMode === 'register') {
+      const username = regUsername?.value || '';
+      const result = auth.register(username, email, password);
+      if (result.success) {
+        showToast(`Hoş geldin, ${result.user.username}! Hesabın oluşturuldu.`);
+        closeAuthModal();
+        updateAuthUI();
+      } else {
+        alert(result.message);
+      }
+    } else {
+      const result = auth.login(email, password);
+      if (result.success) {
+        showToast(`Tekrar hoş geldin, ${result.user.username || 'Oyuncu'}!`);
+        closeAuthModal();
+        updateAuthUI();
+      } else {
+        alert(result.message);
+      }
+    }
+  });
+
+  // Handle Logout
+  logoutBtn?.addEventListener('click', () => {
+    if (confirm('Hesabından çıkış yapmak istediğine emin misin?')) {
+      auth.logout();
+      showToast('Oturum kapatıldı.');
+      updateAuthUI();
+    }
+  });
+
+  // Initial Load
+  updateAuthUI();
 });
