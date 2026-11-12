@@ -42,6 +42,9 @@
 
         <!-- Logged In State -->
         <div id="authLoggedIn" class="auth-logged-in" style="display: none;">
+          <a href="admin.html" id="adminHeaderBtn" class="btn-admin-header" style="display: none;" title="Yönetici Kontrol Paneli">
+            👑 <span>Admin Paneli</span>
+          </a>
           <div class="user-profile-badge">
             <div class="user-avatar" id="userAvatarText">Y</div>
             <div class="user-info">
@@ -60,6 +63,15 @@
       </div>
     </div>
   </header>
+
+  <!-- Live Announcement Banner (Admin Controlled) -->
+  <div class="announcement-banner" id="siteAnnouncementBanner" style="display: none;">
+    <div class="announcement-content">
+      <span class="announcement-badge">📢 SİSTEM DUYURUSU</span>
+      <span class="announcement-text" id="announcementText"></span>
+    </div>
+    <button class="announcement-close" id="announcementCloseBtn" aria-label="Kapat">&times;</button>
+  </div>
 
   <!-- App Layout: Left Sidebar + Main Content -->
   <div class="layout-wrapper">

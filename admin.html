@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AntinKuntin - Canlı Yönetici Paneli</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Admin Özel Stilleri */
+    body {
+      background: #f8fafc;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-navbar {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .admin-nav-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .admin-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .admin-crown-badge {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 1px solid #f59e0b;
+      color: #b45309;
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .admin-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .live-clock {
+      font-family: monospace;
+      font-size: 0.9rem;
+      background: #f1f5f9;
+      padding: 6px 12px;
+      border-radius: 8px;
+      color: #475569;
+      font-weight: 600;
+    }
+
+    .admin-container {
+      max-width: 1300px;
+      margin: 28px auto;
+      padding: 0 20px;
+      flex: 1;
+      width: 100%;
+    }
+
+    /* Auth Gate Card (Kilit Ekranı) */
+    .admin-gate-wrap {
+      max-width: 460px;
+      margin: 60px auto;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+      text-align: center;
+    }
+
+    .gate-icon {
+      font-size: 3.5rem;
+      margin-bottom: 16px;
+    }
+
+    .gate-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .gate-desc {
+      font-size: 0.9rem;
+      color: #64748b;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .gate-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      text-align: left;
+    }
+
+    /* Dashboard Layout */
+    .dashboard-view {
+      display: none;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* Metric Grid */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .metric-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    }
+
+    .metric-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #64748b;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .metric-icon {
+      font-size: 1.4rem;
+    }
+
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #0f172a;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      background: #10b981;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulseGreen 1.8s infinite;
+    }
+
+    @keyframes pulseGreen {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* Admin Panels Section */
+    .admin-section {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #f1f5f9;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Live Players Grid */
+    .players-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .player-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.2s;
+    }
+
+    .player-card:hover {
+      background: #ffffff;
+      border-color: #38bdf8;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.12);
+    }
+
+    .player-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+      color: #ffffff;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .player-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .player-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0f172a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .player-meta {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-top: 3px;
+    }
+
+    .player-badge-page {
+      display: inline-block;
+      background: #e0f2fe;
+      color: #0284c7;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      margin-top: 4px;
+    }
+
+    /* Leaderboard Table */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+
+    .admin-table th {
+      background: #f8fafc;
+      padding: 12px 14px;
+      font-weight: 700;
+      color: #475569;
+      border-bottom: 2px solid #e2e8f0;
+      white-space: nowrap;
+    }
+
+    .admin-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #1e293b;
+    }
+
+    .admin-table tr:hover td {
+      background: #f8fafc;
+    }
+
+    .score-badge {
+      font-weight: 800;
+      color: #0284c7;
+      font-size: 1rem;
+    }
+
+    .btn-delete-score {
+      background: #fee2e2;
+      border: 1px solid #fca5a5;
+      color: #b91c1c;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-delete-score:hover {
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    /* Broadcast Section */
+    .broadcast-box {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .broadcast-input {
+      flex: 1;
+      min-width: 260px;
+      padding: 10px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 0.9rem;
+    }
+
+    .empty-state {
+      padding: 36px 16px;
+      text-align: center;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Admin Navbar -->
+  <header class="admin-navbar">
+    <div class="admin-nav-inner">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="index.html" class="admin-brand">
+          <img src="assets/logo.svg" alt="Logo" style="height: 32px;">
+          <span style="font-weight: 900; font-size: 1.15rem; font-family: 'Outfit';">Antin<span style="color:#0284c7;">Kuntin</span></span>
+        </a>
+        <span class="admin-crown-badge">👑 Yönetici Masası</span>
+      </div>
+
+      <div class="admin-header-actions">
+        <div class="live-clock" id="liveClock">--:--:--</div>
+        <a href="index.html" class="btn-secondary" style="font-size: 0.85rem; padding: 7px 14px;">🌐 Siteye Dön</a>
+        <button id="adminLogoutBtn" class="btn-logout" title="Çıkış Yap" style="display: none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="admin-container">
+    <!-- Security Gate / Login Card -->
+    <div class="admin-gate-wrap" id="adminGateWrap">
+      <div class="gate-icon">🔒</div>
+      <h2 class="gate-title">AntinKuntin Yönetici Girişi</h2>
+      <p class="gate-desc">Bu yönetim paneli yalnızca platform sahibi <strong>yasarlovesf1@gmail.com</strong> hesabına yetkilidir. Devam etmek için yönetici hesabınızla oturum açın.</p>
+      
+      <form id="adminLoginForm" class="gate-form" onsubmit="return false;">
+        <div class="form-group">
+          <label for="gateEmail">Yönetici E-Posta</label>
+          <input type="email" id="gateEmail" class="form-input" value="yasarlovesf1@gmail.com" required>
+        </div>
+        <div class="form-group">
+          <label for="gatePassword">Şifre</label>
+          <input type="password" id="gatePassword" class="form-input" placeholder="••••••••" required autofocus>
+        </div>
+        <div id="gateError" style="color: #ef4444; font-size: 0.85rem; display: none;"></div>
+        <button type="submit" id="gateSubmitBtn" class="btn-primary" style="padding: 12px; font-weight: 700;">Yönetici Olarak Giriş Yap</button>
+      </form>
+    </div>
+
+    <!-- Active Admin Dashboard View -->
+    <div class="dashboard-view" id="dashboardView">
+      <!-- Welcome & Status Banner -->
+      <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div style="width: 48px; height: 48px; border-radius: 12px; background: #fef3c7; border: 1px solid #fde68a; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👑</div>
+          <div>
+            <div style="font-weight: 800; font-size: 1.15rem; color: #0f172a;">Hoş Geldin, Yaşar!</div>
+            <div style="font-size: 0.84rem; color: #64748b;">Yönetici Hesabı: <span style="color: #0284c7; font-weight: 600;" id="adminEmailBadge">yasarlovesf1@gmail.com</span></div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 0.82rem; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-weight: 700; padding: 6px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+            <span class="pulse-dot"></span> Supabase Realtime Aktif
+          </span>
+          <button id="refreshDataBtn" class="btn-secondary" style="font-size: 0.82rem; padding: 6px 12px;">🔄 Verileri Yenile</button>
+        </div>
+      </div>
+
+      <!-- Realtime Metrics -->
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-top">
+            <span>CANLI OYUNCULAR</span>
+            <span class="metric-icon">🟢</span>
+          </div>
+          <div class="metric-value">
+            <span id="metricLivePlayers">1</span>
+            <span class="pulse-dot"></span>
+          </div>
+          <div style="font-size: 0.75rem; color: #64748b;">Realtime Presence ile anlık bağlı</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-top">
+            <span>TOPLAM REKOR KAYDI</span>
+            <span class="metric-icon">🏆</span>
+          </div>
+          <div class="metric-value" id="metricTotalScores">--</div>
+          <div style="font-size: 0.75rem; color: #64748b;">Supabase Leaderboard tablosu</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-top">
+            <span>AKTİF MİNİ OYUN</span>
+            <span class="metric-icon">🎮</span>
+          </div>
+          <div class="metric-value">7</div>
+          <div style="font-size: 0.75rem; color: #64748b;">PotatoBros, Metrobüs, Kum Havuzu vb.</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-top">
+            <span>KAYITLI KULLANICILAR</span>
+            <span class="metric-icon">👥</span>
+          </div>
+          <div class="metric-value" id="metricRegisteredUsers">--</div>
+          <div style="font-size: 0.75rem; color: #64748b;">Yerel & Bulut Kayıtlı Hesaplar</div>
+        </div>
+      </div>
+
+      <!-- Section: Canlı Oyuncular (Realtime Presence) -->
+      <section class="admin-section">
+        <div class="section-head">
+          <div class="section-title">
+            <span class="pulse-dot"></span>
+            <span>Canlı Sitedeki Oyuncular & Aktif Gezinenler</span>
+            <span style="font-size: 0.82rem; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 12px;" id="livePlayerCountBadge">0 Canlı</span>
+          </div>
+          <div style="font-size: 0.8rem; color: #64748b;">Supabase Realtime WebSocket üzerinden anlık akmaktadır.</div>
+        </div>
+        <div class="players-list" id="livePlayersList">
+          <div class="empty-state">Canlı oyuncular tespit ediliyor...</div>
+        </div>
+      </section>
+
+      <!-- Section: Canlı Sistem Duyurusu (Broadcast) -->
+      <section class="admin-section">
+        <div class="section-head">
+          <div class="section-title">
+            <span>📢</span>
+            <span>Genel Kontrol: Canlı Site Duyuru Bandı</span>
+          </div>
+          <div style="font-size: 0.8rem; color: #64748b;">Sitedeki tüm ziyaretçilerin üstünde anında görünür</div>
+        </div>
+        <div class="broadcast-box">
+          <input type="text" id="broadcastInput" class="broadcast-input" placeholder="Örn: 🔥 Yeni PotatoBros güncellemesi yayında! Rekorlarınızı bekliyoruz...">
+          <button id="setBroadcastBtn" class="btn-primary" style="padding: 10px 18px; font-weight: 700;">Canlıya Al / Duyur</button>
+          <button id="clearBroadcastBtn" class="btn-secondary" style="padding: 10px 18px;">Duyuruyu Kaldır</button>
+        </div>
+        <div id="broadcastStatus" style="font-size: 0.82rem; margin-top: 10px; color: #64748b;"></div>
+      </section>
+
+      <!-- Section: Leaderboard Yönetimi & Canlı Skor Akışı -->
+      <section class="admin-section">
+        <div class="section-head">
+          <div class="section-title">
+            <span>🏆</span>
+            <span>Liderlik Tablosu & Rekor Denetimi</span>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <select id="gameFilterSelect" style="padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem;">
+              <option value="all">Tüm Oyunlar</option>
+              <option value="metrobuse-bin">Zincirlikuyu Metrobüs</option>
+              <option value="potatobros">PotatoBros Arena</option>
+              <option value="para-harca">Türk Zengini</option>
+              <option value="kum-havuzu">Kum Havuzu</option>
+            </select>
+            <button id="addTestScoreBtn" class="btn-secondary" style="font-size: 0.82rem; padding: 6px 12px;">➕ Test Skoru Ekle</button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width: 50px;">#</th>
+                <th>Oyun</th>
+                <th>Oyuncu Rumuzu</th>
+                <th>Skor / Rekor</th>
+                <th>Kayıt Tarihi</th>
+                <th style="text-align: right;">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="scoresTableBody">
+              <tr>
+                <td colspan="6" class="empty-state">Skorlar Supabase'den yükleniyor...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section: Kayıtlı Kullanıcılar & Favori Analitiği -->
+      <section class="admin-section">
+        <div class="section-head">
+          <div class="section-title">
+            <span>👥</span>
+            <span>Kayıtlı Kullanıcılar & Favori İstatistikleri</span>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Kullanıcı Adı</th>
+                <th>E-Posta</th>
+                <th>Favori Oyun Sayısı</th>
+                <th>Favorilenen Oyunlar</th>
+                <th>Kayıt Tarihi</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr>
+                <td colspan="5" class="empty-state">Kullanıcılar yükleniyor...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Supabase CDN & Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseClient.js"></script>
+
+  <script>
+    // Live Clock
+    function updateClock() {
+      const now = new Date();
+      const clockEl = document.getElementById('liveClock');
+      if (clockEl) {
+        clockEl.textContent = now.toLocaleTimeString('tr-TR');
+      }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // DOM Elements
+    const adminGateWrap = document.getElementById('adminGateWrap');
+    const dashboardView = document.getElementById('dashboardView');
+    const adminLoginForm = document.getElementById('adminLoginForm');
+    const gateEmail = document.getElementById('gateEmail');
+    const gatePassword = document.getElementById('gatePassword');
+    const gateError = document.getElementById('gateError');
+    const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+    const refreshDataBtn = document.getElementById('refreshDataBtn');
+
+    // Metrics
+    const metricLivePlayers = document.getElementById('metricLivePlayers');
+    const metricTotalScores = document.getElementById('metricTotalScores');
+    const metricRegisteredUsers = document.getElementById('metricRegisteredUsers');
+    const livePlayerCountBadge = document.getElementById('livePlayerCountBadge');
+    const livePlayersList = document.getElementById('livePlayersList');
+
+    // Controls
+    const broadcastInput = document.getElementById('broadcastInput');
+    const setBroadcastBtn = document.getElementById('setBroadcastBtn');
+    const clearBroadcastBtn = document.getElementById('clearBroadcastBtn');
+    const broadcastStatus = document.getElementById('broadcastStatus');
+
+    // Tables
+    const scoresTableBody = document.getElementById('scoresTableBody');
+    const gameFilterSelect = document.getElementById('gameFilterSelect');
+    const addTestScoreBtn = document.getElementById('addTestScoreBtn');
+    const usersTableBody = document.getElementById('usersTableBody');
+
+    // Check Current Admin Session
+    function getStoredSession() {
+      try {
+        const raw = localStorage.getItem('antinkuntin_current_session');
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function checkAdminAccess() {
+      const session = getStoredSession();
+      if (session && window.AntinDB && window.AntinDB.isAdmin(session)) {
+        showDashboard();
+      } else {
+        showGate();
+      }
+    }
+
+    function showDashboard() {
+      adminGateWrap.style.display = 'none';
+      dashboardView.style.display = 'flex';
+      adminLogoutBtn.style.display = 'inline-flex';
+      initAdminServices();
+    }
+
+    function showGate() {
+      adminGateWrap.style.display = 'block';
+      dashboardView.style.display = 'none';
+      adminLogoutBtn.style.display = 'none';
+    }
+
+    // Handle Admin Login
+    adminLoginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      gateError.style.display = 'none';
+      const email = gateEmail.value.trim().toLowerCase();
+      const password = gatePassword.value.trim();
+
+      if (email !== 'yasarlovesf1@gmail.com') {
+        gateError.textContent = 'Yetkisiz hesap! Yalnızca yasarlovesf1@gmail.com yönetici girişine yetkilidir.';
+        gateError.style.display = 'block';
+        return;
+      }
+
+      const submitBtn = document.getElementById('gateSubmitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Doğrulanıyor...';
+
+      try {
+        const sb = window.AntinDB ? window.AntinDB.client : null;
+        let success = false;
+        let userObj = null;
+
+        if (sb) {
+          const { data, error } = await sb.auth.signInWithPassword({ email, password });
+          if (!error && data && data.user) {
+            success = true;
+            userObj = {
+              id: data.user.id,
+              username: data.user.user_metadata?.username || 'Yaşar (Admin)',
+              email: email,
+              favorites: data.user.user_metadata?.favorites || []
+            };
+          }
+        }
+
+        // Yerel kullanıcı kontrolü
+        if (!success) {
+          const rawUsers = localStorage.getItem('antinkuntin_registered_users');
+          const users = rawUsers ? JSON.parse(rawUsers) : [];
+          const localUser = users.find(u => u.email && u.email.toLowerCase() === email);
+          if (localUser && localUser.password === password) {
+            success = true;
+            userObj = localUser;
+          }
+        }
+
+        if (success && userObj) {
+          localStorage.setItem('antinkuntin_current_session', JSON.stringify(userObj));
+          showDashboard();
+        } else {
+          gateError.textContent = 'Giriş başarısız! E-posta veya şifre hatalı.';
+          gateError.style.display = 'block';
+        }
+      } catch (err) {
+        gateError.textContent = 'Hata oluştu: ' + err.message;
+        gateError.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Yönetici Olarak Giriş Yap';
+      }
+    });
+
+    // Logout
+    adminLogoutBtn.addEventListener('click', async () => {
+      if (confirm('Yönetici oturumundan çıkmak istediğinize emin misiniz?')) {
+        const sb = window.AntinDB ? window.AntinDB.client : null;
+        if (sb) {
+          try { await sb.auth.signOut(); } catch (e) {}
+        }
+        localStorage.removeItem('antinkuntin_current_session');
+        showGate();
+      }
+    });
+
+    // ------------------------------------------------------------------------
+    // Dashboard Data & Realtime Initializers
+    // ------------------------------------------------------------------------
+    let allLoadedScores = [];
+
+    async function initAdminServices() {
+      // Admin kendisini presence olarak bildirsin
+      if (window.AntinDB && window.AntinDB.initPresence) {
+        window.AntinDB.initPresence({ page: 'Admin Paneli' });
+      }
+
+      // Canlı oyuncuları dinle
+      if (window.AntinDB && window.AntinDB.onPresenceUpdate) {
+        window.AntinDB.onPresenceUpdate(renderLivePlayers);
+      }
+
+      // Canlı skor akışını dinle (Supabase Postgres Changes)
+      if (window.AntinDB && window.AntinDB.subscribeToScores) {
+        window.AntinDB.subscribeToScores((payload) => {
+          loadLeaderboardData();
+        });
+      }
+
+      loadLeaderboardData();
+      loadUsersData();
+      loadBroadcastUI();
+    }
+
+    // Render Live Players
+    function renderLivePlayers(players) {
+      if (!Array.isArray(players) || players.length === 0) {
+        // En azından aktif yöneticiyi göster
+        players = [{
+          name: 'Yaşar (Admin)',
+          email: 'yasarlovesf1@gmail.com',
+          isAdmin: true,
+          page: 'Admin Paneli',
+          device: 'Masaüstü',
+          joinedAt: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
+        }];
+      }
+
+      metricLivePlayers.innerHTML = `${players.length} <span class="pulse-dot"></span>`;
+      livePlayerCountBadge.textContent = `${players.length} Canlı`;
+
+      livePlayersList.innerHTML = players.map(p => {
+        const initial = (p.name || 'O').charAt(0).toUpperCase();
+        const isAdm = p.isAdmin || (p.email === 'yasarlovesf1@gmail.com');
+        return `
+          <div class="player-card">
+            <div class="player-avatar" style="${isAdm ? 'background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: #000;' : ''}">
+              ${isAdm ? '👑' : initial}
+            </div>
+            <div class="player-info">
+              <div class="player-name">
+                <span>${p.name || 'Anonim'}</span>
+                ${isAdm ? '<span style="font-size: 0.68rem; background: #fef3c7; color: #b45309; padding: 1px 6px; border-radius: 4px;">Yönetici</span>' : ''}
+              </div>
+              <div class="player-meta">
+                <span>Cihaz: ${p.device || 'Web'}</span> • <span>Bağlantı: ${p.joinedAt || 'Şimdi'}</span>
+              </div>
+              <span class="player-badge-page">📍 ${p.page || 'Ana Sayfa'}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Load Leaderboard Scores from Supabase
+    async function loadLeaderboardData() {
+      scoresTableBody.innerHTML = '<tr><td colspan="6" class="empty-state">Skorlar yükleniyor...</td></tr>';
+      
+      const res = await window.AntinDB.getAllScores(100);
+      allLoadedScores = res.data || [];
+
+      metricTotalScores.textContent = allLoadedScores.length;
+
+      filterAndRenderScores();
+    }
+
+    function filterAndRenderScores() {
+      const selectedGame = gameFilterSelect.value;
+      const filtered = selectedGame === 'all' 
+        ? allLoadedScores 
+        : allLoadedScores.filter(s => s.game_id === selectedGame);
+
+      if (filtered.length === 0) {
+        scoresTableBody.innerHTML = '<tr><td colspan="6" class="empty-state">Kayıtlı skor bulunamadı.</td></tr>';
+        return;
+      }
+
+      scoresTableBody.innerHTML = filtered.map((s, idx) => {
+        const gameNames = {
+          'metrobuse-bin': '🚌 Zincirlikuyu Metrobüs',
+          'potatobros': '🥔 PotatoBros Arena',
+          'para-harca': '💸 Türk Zengini',
+          'kum-havuzu': '⏳ Kum Havuzu'
+        };
+        const title = gameNames[s.game_id] || s.game_id;
+        const dateStr = s.created_at ? new Date(s.created_at).toLocaleString('tr-TR') : 'Bilinmiyor';
+
+        return `
+          <tr>
+            <td style="font-weight: 700; color: #64748b;">#${idx + 1}</td>
+            <td><strong>${title}</strong></td>
+            <td>${s.player_name || 'Anonim'}</td>
+            <td><span class="score-badge">${Number(s.score).toLocaleString('tr-TR')}</span></td>
+            <td style="font-size: 0.8rem; color: #64748b;">${dateStr}</td>
+            <td style="text-align: right;">
+              <button class="btn-delete-score" onclick="deleteScoreItem(${s.id})">🗑️ Sil</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Delete Score Handler
+    window.deleteScoreItem = async function(id) {
+      if (!confirm('Bu skoru liderlik tablosundan kalıcı olarak silmek istediğinize emin misiniz?')) return;
+      const res = await window.AntinDB.deleteScore(id);
+      if (res.success) {
+        allLoadedScores = allLoadedScores.filter(s => s.id !== id);
+        metricTotalScores.textContent = allLoadedScores.length;
+        filterAndRenderScores();
+      } else {
+        alert('Silme başarısız: ' + (res.error || 'Yetki veya bağlantı hatası'));
+      }
+    };
+
+    // Filter change
+    gameFilterSelect.addEventListener('change', filterAndRenderScores);
+
+    // Add Test Score
+    addTestScoreBtn.addEventListener('click', async () => {
+      const playerName = prompt('Test Oyuncu Adı:', 'Yaşar (Admin Test)');
+      if (!playerName) return;
+      const score = prompt('Skor Değeri:', '999');
+      if (!score) return;
+      const gameId = gameFilterSelect.value === 'all' ? 'metrobuse-bin' : gameFilterSelect.value;
+
+      const res = await window.AntinDB.saveScore(gameId, playerName, parseInt(score, 10));
+      if (res.success) {
+        alert('✅ Test skoru başarıyla lider tablosuna kaydedildi!');
+        loadLeaderboardData();
+      } else {
+        alert('Hata: ' + res.error);
+      }
+    });
+
+    // Refresh Data Button
+    refreshDataBtn.addEventListener('click', () => {
+      loadLeaderboardData();
+      loadUsersData();
+      loadBroadcastUI();
+    });
+
+    // Broadcast Management
+    function loadBroadcastUI() {
+      const bc = window.AntinDB.getBroadcast();
+      if (bc && bc.text && bc.active) {
+        broadcastInput.value = bc.text;
+        broadcastStatus.innerHTML = `<span style="color: #10b981; font-weight: 700;">🟢 Canlı Yayında:</span> "${bc.text}" (Son güncelleme: ${new Date(bc.updatedAt).toLocaleTimeString('tr-TR')})`;
+      } else {
+        broadcastInput.value = '';
+        broadcastStatus.innerHTML = '<span style="color: #64748b;">Şu anda aktif bir duyuru yok.</span>';
+      }
+    }
+
+    setBroadcastBtn.addEventListener('click', () => {
+      const text = broadcastInput.value.trim();
+      if (!text) {
+        alert('Lütfen bir duyuru metni yazın.');
+        return;
+      }
+      window.AntinDB.setBroadcast(text, true);
+      loadBroadcastUI();
+      alert('✅ Duyuru canlı yayına alındı! Ana sayfada anında görüntülenecek.');
+    });
+
+    clearBroadcastBtn.addEventListener('click', () => {
+      window.AntinDB.setBroadcast('', false);
+      loadBroadcastUI();
+      alert('Duyuru yayından kaldırıldı.');
+    });
+
+    // Load Registered Users & Favorite Analytics
+    function loadUsersData() {
+      let users = [];
+      try {
+        const raw = localStorage.getItem('antinkuntin_registered_users');
+        if (raw) users = JSON.parse(raw);
+      } catch (e) {}
+
+      // Yöneticinin hesabını da ekle
+      if (!users.some(u => u.email === 'yasarlovesf1@gmail.com')) {
+        users.unshift({
+          username: 'Yaşar (Yönetici)',
+          email: 'yasarlovesf1@gmail.com',
+          favorites: ['potatobros', 'metrobuse-bin'],
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      metricRegisteredUsers.textContent = users.length;
+
+      usersTableBody.innerHTML = users.map(u => {
+        const favs = u.favorites || [];
+        const favCount = favs.length;
+        const favListStr = favs.join(', ') || 'Yok';
+        const dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString('tr-TR') : 'Bilinmiyor';
+
+        return `
+          <tr>
+            <td><strong>${u.username || 'Oyuncu'}</strong></td>
+            <td>${u.email}</td>
+            <td><span style="font-weight: 700; color: #0284c7;">${favCount}</span></td>
+            <td style="font-size: 0.82rem; color: #475569;">${favListStr}</td>
+            <td style="font-size: 0.8rem; color: #64748b;">${dateStr}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Initial Gate Check
+    checkAdminAccess();
+  </script>
+</body>
+
+</html>
+

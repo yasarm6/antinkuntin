@@ -745,13 +745,14 @@
       /* ============================================================
          KARAKTERLER
       ============================================================ */
-      const CHARACTERS = {
+           const CHARACTERS = {
         spud: {
-          id: 'spud', name: 'SPUD', emoji: '',
+          id: 'spud', name: 'SPUD', emoji: '🥔',
           desc: 'Hızlı ve çevik. Seri ateş, düşük hasar.',
-          speedMult: 1.10,
-          dmgMult: 0.90,
-          atkSpdMult: 1.075,
+          speedMult: 1.25,
+          dmgMult: 0.72,
+          atkSpdMult: 1.00,
+          attackType: 'ranged',
           palette: {
             body1: '#f7e0b0', body2: '#eabd8c', body3: '#a06e3c',
             stroke: '#6b4423', spot: 'rgba(120,74,34,0.45)'
@@ -759,19 +760,49 @@
           shapeX: 1.1, shapeY: 0.88
         },
         fry: {
-          id: 'fry', name: 'FRY', emoji: '',
+          id: 'fry', name: 'FRY', emoji: '🍟',
           desc: 'Ağır ve güçlü. Yüksek hasar, düşük hız.',
-          speedMult: 0.90,
-          dmgMult: 1.15,
-          atkSpdMult: 1.00,
+          speedMult: 0.72,
+          dmgMult: 1.45,
+          atkSpdMult: 0.88,
+          attackType: 'ranged',
           palette: {
             body1: '#fef9c3', body2: '#bc9e82', body3: '#d97706',
             stroke: '#92400e', spot: 'rgba(146,64,14,0.5)'
           },
           shapeX: 0.88, shapeY: 1.10
+        },
+        peel: {
+          id: 'peel', name: 'PEEL', emoji: '🗡️',
+          desc: 'Katana ustası. Geniş yay — çoklu hasar.',
+          speedMult: 1.10,
+          dmgMult: 0.70,
+          atkSpdMult: 1.35,
+          attackType: 'melee_wide',
+          meleeRange: 100,
+          meleeArc: 2.1,
+          palette: {
+            body1: '#e0e7ff', body2: '#a5b4fc', body3: '#4338ca',
+            stroke: '#1e1b4b', spot: 'rgba(30,27,75,0.5)'
+          },
+          shapeX: 1.02, shapeY: 1.02
+        },
+        root: {
+          id: 'root', name: 'ROOT', emoji: '🔨',
+          desc: 'Çekiç ustası. Tek hedefe ağır vuruş.',
+          speedMult: 0.72,
+          dmgMult: 1.85,
+          atkSpdMult: 0.70,
+          attackType: 'melee_heavy',
+          meleeRange: 82,
+          meleeArc: 0.9,
+          palette: {
+            body1: '#d6d3d1', body2: '#a8a29e', body3: '#57534e',
+            stroke: '#292524', spot: 'rgba(41,37,36,0.5)'
+          },
+          shapeX: 0.92, shapeY: 1.05
         }
       };
-
       let selectedChar = 'spud';
 
       /* ============================================================
@@ -814,7 +845,10 @@
         fireCd: 0,
         iFrame: 0,
         level: 1, xp: 0, xpNext: 5, mats: 0,
-        character: 'spud'
+        character: 'spud',
+        swingT: 0, swingBaseAngle: 0, swingArc: 0, swingRange: 0, swingChar: 'peel',
+        charProj: { spud: 1, fry: 1, peel: 1, root: 1 },
+        charPierce: { spud: 0, fry: 0, peel: 0, root: 0 }
       };
 
       /* ============================================================
@@ -917,7 +951,10 @@
         ghost: { r: 17, hp: 34, speed: 108, dmg: 9, color: '#c4b5fd', dark: '#7c3aed', shape: 'ghost', mat: 2 },
         tank: { r: 34, hp: 120, speed: 32, dmg: 18, color: '#94a3b8', dark: '#475569', shape: 'tank', mat: 5 },
         splitter: { r: 22, hp: 55, speed: 64, dmg: 11, color: '#f472b6', dark: '#be185d', shape: 'blob', mat: 2 },
-        shooter: { r: 18, hp: 42, speed: 58, dmg: 8, color: '#fb923c', dark: '#c2410c', shape: 'shooter', mat: 2 }
+        shooter: { r: 18, hp: 42, speed: 58, dmg: 8, color: '#fb923c', dark: '#c2410c', shape: 'shooter', mat: 2 },
+        gunner: { r: 20, hp: 55, speed: 45, dmg: 6, color: '#10b981', dark: '#047857', shape: 'shooter', mat: 3 },
+        sniper: { r: 17, hp: 45, speed: 35, dmg: 26, color: '#ef4444', dark: '#991b1b', shape: 'shooter', mat: 3 },
+        mortar: { r: 24, hp: 70, speed: 38, dmg: 16, color: '#7c3aed', dark: '#4c1d95', shape: 'tank', mat: 4 }
       };
 
       function pickEnemyType() {
@@ -928,28 +965,58 @@
         if (w >= 4) pool.push('brute');
         if (w >= 6) pool.push('brute', 'spike');
         if (w >= 8) pool.push('brute', 'brute', 'spike');
+        // Menzilli düşmanlar artık daha erken geliyor
+        if (w >= 5) pool.push('shooter');
+        if (w >= 10) pool.push('gunner');
+        if (w >= 12) pool.push('shooter', 'gunner');
+        if (w >= 15) pool.push('sniper');
+        if (w >= 18) pool.push('mortar');
         if (w >= 20) pool.push('ghost');
         if (w >= 21) pool.push('tank');
         if (w >= 22) pool.push('splitter', 'ghost');
         if (w >= 24) pool.push('shooter', 'ghost');
         if (w >= 26) pool.push('tank', 'splitter');
-        if (w >= 28) pool.push('shooter', 'ghost', 'tank');
-        if (w >= 32) pool.push('shooter', 'tank', 'splitter');
+        if (w >= 28) pool.push('shooter', 'gunner', 'ghost', 'tank');
+        if (w >= 32) pool.push('shooter', 'sniper', 'mortar', 'tank', 'splitter');
+        if (w >= 40) pool.push('gunner', 'sniper', 'mortar', 'ghost');
         return pool[randInt(0, pool.length - 1)];
       }
 
-      function spawnEnemyAt(type, x, y, scale) {
+       function spawnEnemyAt(type, x, y, scale) {
         const t = ETYPES[type];
-        const hpMult = 1 + (G.wave - 1) * 0.20;
-        const dmgMult = 1 + (G.wave - 1) * 0.09;
-        const spdMult = Math.min(1.4, 1 + (G.wave - 1) * 0.012);
+        const w = G.wave;
+
+        // Temel ölçekleme
+        let hpMult = 1 + (w - 1) * 0.20;
+        let dmgMult = 1 + (w - 1) * 0.09;
+        const spdMult = Math.min(1.4, 1 + (w - 1) * 0.012);
+
+        // 50. dalga sonrası ek zorluk: her dalga +%3 HP, +%1.5 hasar
+        if (w > 50) {
+          const over = w - 50;
+          hpMult *= 1 + over * 0.03;
+          dmgMult *= 1 + over * 0.015;
+        }
+
         const sc = scale || 1;
 
+        // Boss döngü ölçeklemesi (her 5 dalgada gelen boss daha güçlü)
+        let bossMult = 1;
+        let bossDmgMult = 1;
+        let bossRadiusMult = 1;
+        if (type === 'boss') {
+          const bossNum = Math.floor(w / 5);
+          bossMult = 1 + (bossNum - 1) * 0.30;     // her 5 dalgada +%30 HP
+          bossDmgMult = 1 + (bossNum - 1) * 0.10;  // her 5 dalgada +%10 hasar
+          bossRadiusMult = 1 + (bossNum - 1) * 0.04; // hafif büyüme
+        }
+
         const es = {
-          id: ++eid, type, x, y, r: t.r * sc, shape: t.shape,
-          hp: t.hp * hpMult * sc, maxHp: t.hp * hpMult * sc,
+          id: ++eid, type, x, y, r: t.r * sc * bossRadiusMult, shape: t.shape,
+          hp: t.hp * hpMult * sc * bossMult,
+          maxHp: t.hp * hpMult * sc * bossMult,
           speed: t.speed * spdMult,
-          dmg: t.dmg * dmgMult,
+          dmg: t.dmg * dmgMult * bossDmgMult,
           color: t.color, dark: t.dark, matDrop: t.mat,
           t: rand(0, 10), seed: rand(0, 10),
           flash: 0, dead: false, spawnT: 0.35,
@@ -964,6 +1031,18 @@
         if (type === 'shooter') {
           es.shootCd = rand(0.8, 1.6);
           es.keepDist = rand(180, 260);
+        }
+        if (type === 'gunner') {
+          es.shootCd = rand(0.9, 1.5);
+          es.keepDist = rand(200, 280);
+        }
+        if (type === 'sniper') {
+          es.shootCd = rand(2.0, 3.2);
+          es.keepDist = rand(300, 420);
+        }
+        if (type === 'mortar') {
+          es.shootCd = rand(2.5, 3.8);
+          es.keepDist = rand(220, 320);
         }
 
         G.enemies.push(es);
@@ -1058,7 +1137,107 @@
         addParts(p.x + Math.cos(base) * p.r, p.y + Math.sin(base) * p.r, 4, '#fde68a', 150, 3, 0.18);
         G.shake = Math.max(G.shake, 1.6);
       }
+      function meleeAttack(target, range) {
+        const p = player;
+        const charData = CHARACTERS[p.character];
+        const baseAngle = Math.atan2(target.y - p.y, target.x - p.x);
+        const arc = charData.meleeArc || 1.0;
+        const halfArc = arc / 2;
+        const isHeavy = charData.attackType === 'melee_heavy';
+        const effectiveRange = range;
 
+        // Savurma animasyonu
+        p.swingT = 0.22;
+        p.swingBaseAngle = baseAngle;
+        p.swingArc = arc;
+        p.swingRange = effectiveRange;
+        p.swingChar = p.character;
+
+        // Hedefleri bul
+        const hits = [];
+        if (isHeavy) {
+          // Root: en yakın tek hedef
+          let nearest = null, nearDist = Infinity;
+          for (const e of G.enemies) {
+            if (e.dead) continue;
+            const dx = e.x - p.x, dy = e.y - p.y;
+            const d = Math.hypot(dx, dy);
+            if (d > effectiveRange + e.r) continue;
+            const angle = Math.atan2(dy, dx);
+            let diff = angle - baseAngle;
+            while (diff > Math.PI) diff -= TAU;
+            while (diff < -Math.PI) diff += TAU;
+            if (Math.abs(diff) > halfArc) continue;
+            if (d < nearDist) { nearDist = d; nearest = e; }
+          }
+          if (nearest) hits.push(nearest);
+        } else {
+          // Peel: yaydaki tüm hedefler
+          for (const e of G.enemies) {
+            if (e.dead) continue;
+            const dx = e.x - p.x, dy = e.y - p.y;
+            const d = Math.hypot(dx, dy);
+            if (d > effectiveRange + e.r) continue;
+            const angle = Math.atan2(dy, dx);
+            let diff = angle - baseAngle;
+            while (diff > Math.PI) diff -= TAU;
+            while (diff < -Math.PI) diff += TAU;
+            if (Math.abs(diff) > halfArc) continue;
+            hits.push(e);
+          }
+        }
+
+        // === EK VURUŞ (proj tabanlı) ===
+        const hitCount = Math.max(1, p.proj || 1);
+
+        for (const e of hits) {
+          for (let i = 0; i < hitCount; i++) {
+            if (e.dead) break;
+            const crit = Math.random() < p.crit;
+            const dmg = p.damage * (crit ? p.critMult : 1);
+            damageEnemy(e, dmg, crit);
+          }
+          addParts(e.x, e.y, 10, '#fca5a5', 250, 4, 0.35);
+        }
+
+        // === SIÇRAMA (pierce tabanlı, sadece Root) ===
+        if (isHeavy && hits.length > 0 && (p.pierce || 0) > 0) {
+          const primary = hits[0];
+          const dirX = primary.x - p.x;
+          const dirY = primary.y - p.y;
+          const dirLen = Math.hypot(dirX, dirY) || 1;
+          const nx = dirX / dirLen;
+          const ny = dirY / dirLen;
+
+          const splashTargets = [];
+          for (const e of G.enemies) {
+            if (e.dead || e === primary) continue;
+            const dx = e.x - primary.x;
+            const dy = e.y - primary.y;
+            const d = Math.hypot(dx, dy);
+            if (d > 180) continue;
+            const dot = (dx * nx + dy * ny);
+            if (dot < 0) continue; // sadece arkadaki hedefler
+            splashTargets.push({ e, d });
+          }
+          splashTargets.sort((a, b) => a.d - b.d);
+
+          const splashCount = Math.min(p.pierce, splashTargets.length);
+          for (let i = 0; i < splashCount; i++) {
+            const s = splashTargets[i];
+            const crit = Math.random() < p.crit;
+            const dmg = p.damage * 0.5 * (crit ? p.critMult : 1);
+            damageEnemy(s.e, dmg, crit);
+            addParts(s.e.x, s.e.y, 6, '#fbbf24', 180, 3, 0.3);
+          }
+        }
+
+        // Vuruş efekti
+        const fx = p.x + Math.cos(baseAngle) * effectiveRange * 0.75;
+        const fy = p.y + Math.sin(baseAngle) * effectiveRange * 0.75;
+        addParts(fx, fy, 6, isHeavy ? '#fbbf24' : '#e0e7ff', 200, 3, 0.25);
+        G.shake = Math.max(G.shake, isHeavy ? 4.5 : 2.5);
+      }
       /* ============================================================
          YÜKSELTMELER — SINIRLI
       ============================================================ */
@@ -1090,14 +1269,22 @@
         },
         {
           icon: '🔱', name: 'EK MERMİ', desc: '+1 mermi',
+          meleeLabel: {
+            peel: { icon: '🔱', name: 'ÇİFT VURUŞ', desc: 'Yaydaki hedeflere +1 vuruş' },
+            root: { icon: '🔱', name: 'ÇİFT VURUŞ', desc: 'Vurduğun hedefe +1 vuruş' }
+          },
           apply: () => { player.proj = Math.min(MAX.proj, player.proj + 1); },
           capped: () => player.proj >= MAX.proj
         },
         {
           icon: '🎯', name: 'DELME', desc: '+1 delme',
+          meleeLabel: {
+            peel: { icon: '📏', name: 'UZUN YAY', desc: 'Kılıç menzili +20' },
+            root: { icon: '🌊', name: 'SIÇRAMA', desc: 'Arkadaki hedefe %50 hasar sıçrar' }
+          },
           apply: () => { player.pierce = Math.min(MAX.pierce, player.pierce + 1); },
           capped: () => player.pierce >= MAX.pierce
-        },
+        },  
         {
           icon: '💥', name: 'KRİTİK', desc: '+%9 kritik şansı',
           apply: () => { player.crit = Math.min(MAX.crit, player.crit + 0.09); },
@@ -1183,12 +1370,30 @@
         }
 
         p.fireCd -= dt;
-        if (near && p.fireCd <= 0 && nd < p.range * p.range) {
-          shoot(near);
-          p.fireCd = 1 / p.atkSpd;
-        }
-      }
+        const charData = CHARACTERS[p.character] || CHARACTERS.spud;
+        const isMelee = charData.attackType === 'melee_wide' || charData.attackType === 'melee_heavy';
 
+        if (near && p.fireCd <= 0) {
+          if (isMelee) {
+            let mr = (charData.meleeRange || 90) + Math.max(0, (p.range - 400) * 0.1);
+            // Peel: pierce = menzil bonusu
+            if (charData.attackType === 'melee_wide') {
+              mr += (p.pierce || 0) * 20;
+            }
+            if (nd < (mr + near.r) * (mr + near.r)) {
+              meleeAttack(near, mr);
+              p.fireCd = 1 / p.atkSpd;
+            }
+          } else {
+            if (nd < p.range * p.range) {
+              shoot(near);
+              p.fireCd = 1 / p.atkSpd;
+            }
+          }
+        }
+
+        if (p.swingT > 0) p.swingT -= dt;
+      }
       function updateBullets(dt) {
         for (let i = G.bullets.length - 1; i >= 0; i--) {
           const b = G.bullets[i];
@@ -1253,7 +1458,10 @@
           const d = Math.hypot(dx, dy) || 1;
           const sp = e.speed * (e.spawnT > 0 ? 0.25 : 1);
 
-          if (e.type === 'shooter') {
+          const isShooter = (e.type === 'shooter' || e.type === 'gunner' || e.type === 'sniper' || e.type === 'mortar');
+
+          if (isShooter) {
+            // Mesafeyi koru
             if (d > e.keepDist) {
               e.x += (dx / d) * sp * dt;
               e.y += (dy / d) * sp * dt;
@@ -1263,16 +1471,52 @@
             }
             e.shootCd -= dt;
             if (e.shootCd <= 0 && d < 520 && e.spawnT <= 0) {
-              e.shootCd = rand(1.8, 2.8);
               const a = Math.atan2(p.y - e.y, p.x - e.x);
-              G.ebullets.push({
-                x: e.x + Math.cos(a) * e.r * 0.9,
-                y: e.y + Math.sin(a) * e.r * 0.9,
-                vx: Math.cos(a) * 250,
-                vy: Math.sin(a) * 250,
-                r: 7, dmg: e.dmg * 0.75, life: 3.2
-              });
-              addParts(e.x + Math.cos(a) * e.r, e.y + Math.sin(a) * e.r, 4, '#fb923c', 150, 3, 0.2);
+
+              if (e.type === 'gunner') {
+                // 3'lü seri atış
+                for (let k = 0; k < 3; k++) {
+                  const ang = a + rand(-0.12, 0.12);
+                  G.ebullets.push({
+                    x: e.x + Math.cos(ang) * e.r * 0.9,
+                    y: e.y + Math.sin(ang) * e.r * 0.9,
+                    vx: Math.cos(ang) * 280, vy: Math.sin(ang) * 280,
+                    r: 6, dmg: e.dmg * 0.6, life: 3.0
+                  });
+                }
+                addParts(e.x + Math.cos(a) * e.r, e.y + Math.sin(a) * e.r, 6, '#10b981', 180, 3, 0.25);
+                e.shootCd = rand(1.5, 2.2);
+              } else if (e.type === 'sniper') {
+                // Tek güçlü uzun menzil
+                G.ebullets.push({
+                  x: e.x + Math.cos(a) * e.r * 0.9,
+                  y: e.y + Math.sin(a) * e.r * 0.9,
+                  vx: Math.cos(a) * 520, vy: Math.sin(a) * 520,
+                  r: 9, dmg: e.dmg, life: 3.5
+                });
+                addParts(e.x + Math.cos(a) * e.r, e.y + Math.sin(a) * e.r, 8, '#ef4444', 220, 4, 0.3);
+                e.shootCd = rand(2.5, 3.5);
+              } else if (e.type === 'mortar') {
+                // Yavaş büyük AoE mermisi
+                G.ebullets.push({
+                  x: e.x + Math.cos(a) * e.r * 0.9,
+                  y: e.y + Math.sin(a) * e.r * 0.9,
+                  vx: Math.cos(a) * 150, vy: Math.sin(a) * 150,
+                  r: 12, dmg: e.dmg, life: 4.0
+                });
+                addParts(e.x + Math.cos(a) * e.r, e.y + Math.sin(a) * e.r, 6, '#7c3aed', 200, 5, 0.35);
+                e.shootCd = rand(2.8, 4.0);
+              } else {
+                // Normal shooter
+                G.ebullets.push({
+                  x: e.x + Math.cos(a) * e.r * 0.9,
+                  y: e.y + Math.sin(a) * e.r * 0.9,
+                  vx: Math.cos(a) * 250, vy: Math.sin(a) * 250,
+                  r: 7, dmg: e.dmg * 0.75, life: 3.2
+                });
+                addParts(e.x + Math.cos(a) * e.r, e.y + Math.sin(a) * e.r, 4, '#fb923c', 150, 3, 0.2);
+                e.shootCd = rand(1.8, 2.8);
+              }
             }
           } else {
             e.x += (dx / d) * sp * dt;
@@ -1385,14 +1629,28 @@
       ============================================================ */
       function startWave() {
         G.wave++;
-        G.waveLen = Math.min(34, 17 + G.wave * 1.4);
+        const w = G.wave;
+
+        // Dalga uzunluğu ve düşman sayısı
+        if (w <= 50) {
+          G.waveLen = Math.min(34, 17 + w * 1.4);
+        } else {
+          G.waveLen = Math.min(55, 34 + (w - 50) * 0.2);
+        }
+
+        let total;
+        if (w <= 50) {
+          total = Math.min(52, 6 + Math.floor(w * 3.2));
+        } else {
+          total = Math.min(150, 52 + Math.floor((w - 50) * 1.2));
+        }
+
         G.timer = G.waveLen;
         G.kills = 0;
         G.enemies.length = 0;
         G.bullets.length = 0;
         G.ebullets.length = 0;
 
-        const total = Math.min(52, 6 + Math.floor(G.wave * 3.2));
         G.toSpawn = total;
         G.spawnInterval = G.waveLen / (total + 2);
         G.spawnT = 0.6;
@@ -1432,7 +1690,6 @@
         G.pickups.length = 0;
 
         player.hp = Math.min(player.maxHp, player.hp + player.maxHp * 0.20);
-        addXp(Math.floor(G.wave * 1.2));
 
         saveRun();
         showSaveToast();
@@ -1540,7 +1797,9 @@
               pickupRange: player.pickupRange,
               level: player.level, xp: player.xp, xpNext: player.xpNext,
               mats: player.mats,
-              character: player.character
+              character: player.character,
+              charProj: player.charProj || { spud: 1, fry: 1, peel: 1, root: 1 },
+              charPierce: player.charPierce || { spud: 0, fry: 0, peel: 0, root: 0 }
             },
             totalKills: G.totalKills,
             pendingLevels: levelQueue
@@ -1627,9 +1886,21 @@
         const newC = CHARACTERS[newId];
         if (!oldC || !newC) return;
 
+        // Eski karakterin proj/pierce'ını sakla
+        if (!player.charProj) player.charProj = {};
+        if (!player.charPierce) player.charPierce = {};
+        player.charProj[oldId] = player.proj;
+        player.charPierce[oldId] = player.pierce;
+
+        // Oranlanan statlar
         player.speed = player.speed / oldC.speedMult * newC.speedMult;
         player.damage = player.damage / oldC.dmgMult * newC.dmgMult;
         player.atkSpd = player.atkSpd / oldC.atkSpdMult * newC.atkSpdMult;
+
+        // Yeni karakterin kendi proj/pierce'ını yükle
+        player.proj = (player.charProj[newId] !== undefined) ? player.charProj[newId] : 1;
+        player.pierce = (player.charPierce[newId] !== undefined) ? player.charPierce[newId] : 0;
+
         player.character = newId;
 
         player.speed = Math.min(player.speed, MAX.speed);
@@ -1637,7 +1908,6 @@
 
         saveRun();
       }
-
       function updateStartScreen() {
         const save = loadRun();
         const continueBtn = document.getElementById('continueBtn');
@@ -1692,11 +1962,28 @@
 
         const el = document.getElementById('levelupCards');
         el.innerHTML = '';
+        const currentChar = CHARACTERS[player.character] || CHARACTERS.spud;
+        const isMeleeChar = currentChar.attackType === 'melee_wide' || currentChar.attackType === 'melee_heavy';
+
         picks.forEach((u, i) => {
           const card = document.createElement('button');
           card.className = 'card';
           card.style.animationDelay = (i * 0.07) + 's';
-          card.innerHTML = `<div class="cicon">${u.icon}</div><div class="cname">${u.name}</div><div class="cdesc">${u.desc}</div>`;
+
+          let displayIcon = u.icon;
+          let displayName = u.name;
+          let displayDesc = u.desc;
+
+          if (isMeleeChar && u.meleeLabel) {
+            const ml = u.meleeLabel[player.character] || u.meleeLabel.peel;
+            if (ml) {
+              displayIcon = ml.icon;
+              displayName = ml.name;
+              displayDesc = ml.desc;
+            }
+          }
+
+          card.innerHTML = `<div class="cicon">${displayIcon}</div><div class="cname">${displayName}</div><div class="cdesc">${displayDesc}</div>`;
           card.addEventListener('click', () => chooseUpgrade(u));
           el.appendChild(card);
         });
@@ -2048,14 +2335,105 @@
 
         ctx.save();
         ctx.rotate(Math.atan2(p.aimY, p.aimX));
-        ctx.fillStyle = '#334155';
-        roundRect(ctx, p.r * 0.55, -3.5, 14, 7, 3);
-        ctx.fill();
-        ctx.fillStyle = '#64748b';
-        roundRect(ctx, p.r * 0.55, -3.5, 14, 3, 2);
-        ctx.fill();
+
+        if (c.attackType === 'melee_wide') {
+          // Peel: Katana
+          ctx.strokeStyle = '#3b2410';
+          ctx.lineWidth = 4;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(p.r * 0.5, 0);
+          ctx.lineTo(p.r * 0.5 + 8, 0);
+          ctx.stroke();
+          ctx.strokeStyle = '#e0e7ff';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(p.r * 0.5 + 8, 0);
+          ctx.lineTo(p.r * 0.5 + 34, 0);
+          ctx.stroke();
+          ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(p.r * 0.5 + 8, -1);
+          ctx.lineTo(p.r * 0.5 + 32, -1);
+          ctx.stroke();
+        } else if (c.attackType === 'melee_heavy') {
+          // Root: Çekiç
+          ctx.fillStyle = '#7c4a1e';
+          ctx.fillRect(p.r * 0.5, -2, 22, 4);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillRect(p.r * 0.5 + 20, -10, 14, 20);
+          ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(p.r * 0.5 + 20, -10, 14, 20);
+        } else {
+          // Menzilli: Tabanca
+          ctx.fillStyle = '#334155';
+          roundRect(ctx, p.r * 0.55, -3.5, 14, 7, 3);
+          ctx.fill();
+          ctx.fillStyle = '#64748b';
+          roundRect(ctx, p.r * 0.55, -3.5, 14, 3, 2);
+          ctx.fill();
+        }
         ctx.restore();
 
+        ctx.restore();
+      }
+            function drawMeleeSwing() {
+        const p = player;
+        if (!p.swingT || p.swingT <= 0) return;
+        const totalTime = 0.22;
+        const progress = 1 - p.swingT / totalTime;
+        const charData = CHARACTERS[p.swingChar] || CHARACTERS.peel;
+        const isHeavy = charData.attackType === 'melee_heavy';
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.swingBaseAngle);
+
+        const halfArc = p.swingArc / 2;
+        const sweepStart = -halfArc;
+        const currentEnd = sweepStart + p.swingArc * progress;
+        const alpha = Math.max(0, 1 - progress * 0.7);
+
+        // Yay izi
+        if (isHeavy) {
+          ctx.strokeStyle = `rgba(251,146,60,${alpha * 0.85})`;
+          ctx.lineWidth = 8;
+        } else {
+          ctx.strokeStyle = `rgba(220,230,255,${alpha * 0.85})`;
+          ctx.lineWidth = 5;
+        }
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.arc(0, 0, p.swingRange * 0.85, sweepStart, currentEnd);
+        ctx.stroke();
+
+        // Silah
+        ctx.rotate(currentEnd);
+        if (isHeavy) {
+          ctx.fillStyle = `rgba(120,80,40,${alpha})`;
+          ctx.fillRect(10, -3, 18, 6);
+          ctx.fillStyle = `rgba(180,180,190,${alpha})`;
+          ctx.fillRect(26, -10, 12, 20);
+          ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.5})`;
+          ctx.lineWidth = 1;
+          ctx.strokeRect(26, -10, 12, 20);
+        } else {
+          ctx.strokeStyle = `rgba(240,245,255,${alpha})`;
+          ctx.lineWidth = 3.5;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(8, 0);
+          ctx.lineTo(p.swingRange * 0.95, 0);
+          ctx.stroke();
+          ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.7})`;
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(8, -1);
+          ctx.lineTo(p.swingRange * 0.9, -1);
+          ctx.stroke();
+        }
         ctx.restore();
       }
 
@@ -2162,7 +2540,10 @@
         drawEnemies();
         drawBullets();
         drawEnemyBullets();
-        if (G.state !== 'gameover') drawPlayer();
+         if (G.state !== 'gameover') {
+          drawPlayer();
+          drawMeleeSwing();
+        }
         drawParticles();
         drawTexts();
         ctx.restore();
@@ -2279,7 +2660,10 @@
           fireCd: 0,
           iFrame: 1.2,
           level: 1, xp: 0, xpNext: 5, mats: 0,
-          character: charId
+          character: charId,
+          swingT: 0, swingBaseAngle: 0, swingArc: 0, swingRange: 0, swingChar: 'peel',
+          charProj: { spud: 1, fry: 1, peel: 1, root: 1 },
+          charPierce: { spud: 0, fry: 0, peel: 0, root: 0 }
         });
 
         player.speed = Math.min(player.speed, MAX.speed);
@@ -2332,6 +2716,14 @@
           aimX: 1, aimY: 0, fireCd: 0, iFrame: 1.2
         });
 
+        // Karakter geçerlilik kontrolü (yeni karakterler için)
+        if (!CHARACTERS[player.character]) player.character = 'spud';
+                // Karakter-bazlı proj/pierce yükle (geriye uyumlu)
+        player.charProj = p.charProj || { spud: 1, fry: 1, peel: 1, root: 1 };
+        player.charPierce = p.charPierce || { spud: 0, fry: 0, peel: 0, root: 0 };
+        // Eski kayıtlarda aktif karakterin değeri, o karaktere ata
+        if (!p.charProj) player.charProj[player.character] = p.proj;
+        if (!p.charPierce) player.charPierce[player.character] = p.pierce;
         // Eski kayıtlardan gelen aşırı değerleri sınırla
         player.range = Math.min(player.range, MAX.range);
         player.proj = Math.min(player.proj, MAX.proj);
@@ -2456,6 +2848,15 @@
       requestAnimationFrame(loop);
 
     })();
+  </script>
+
+  <!-- Supabase & Live Presence Tracker -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseClient.js"></script>
+  <script>
+    if (window.AntinDB && window.AntinDB.initPresence) {
+      window.AntinDB.initPresence({ page: 'PotatoBros Arena' });
+    }
   </script>
 </body>
 

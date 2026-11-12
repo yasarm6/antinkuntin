@@ -133,7 +133,10 @@ class AuthService {
           email: cleanEmail,
           password: password,
           options: {
-            data: { username: cleanUsername }
+            data: { 
+              username: cleanUsername,
+              favorites: guestFavs 
+            }
           }
         });
         if (error) {
@@ -146,7 +149,10 @@ class AuthService {
           favorites: guestFavs,
           createdAt: new Date().toISOString()
         };
-        this.setCurrentUser(newUser);
+        this.updateUser(newUser);
+        if (guestFavs.length > 0) {
+          localStorage.removeItem(this.STORAGE_GUEST_FAVS);
+        }
         return { success: true, user: newUser };
       } catch (e) {
         console.warn('Supabase kayıt uyarısı, yerel kaydediliyor:', e);
@@ -167,9 +173,10 @@ class AuthService {
       createdAt: new Date().toISOString()
     };
 
-    users.push(newUser);
-    this.saveUsers(users);
-    this.setCurrentUser(newUser);
+    this.updateUser(newUser);
+    if (guestFavs.length > 0) {
+      localStorage.removeItem(this.STORAGE_GUEST_FAVS);
+    }
     return { success: true, user: newUser };
   }
 
@@ -189,14 +196,23 @@ class AuthService {
           return { success: false, message: error.message };
         }
         const username = data.user?.user_metadata?.username || cleanEmail.split('@')[0];
+        const users = this.getUsers();
+        const localUser = users.find(u => u.email && u.email.toLowerCase() === cleanEmail);
+        const metaFavs = Array.isArray(data.user?.user_metadata?.favorites) ? data.user.user_metadata.favorites : [];
+        const localFavs = localUser && Array.isArray(localUser.favorites) ? localUser.favorites : [];
+        const mergedFavs = Array.from(new Set([...metaFavs, ...localFavs, ...guestFavs]));
+
         const loggedUser = {
           id: data.user.id,
           username: username,
           email: cleanEmail,
-          favorites: guestFavs,
+          favorites: mergedFavs,
           createdAt: data.user.created_at || new Date().toISOString()
         };
-        this.setCurrentUser(loggedUser);
+        this.updateUser(loggedUser);
+        if (guestFavs.length > 0) {
+          localStorage.removeItem(this.STORAGE_GUEST_FAVS);
+        }
         return { success: true, user: loggedUser };
       } catch (e) {
         console.warn('Supabase giriş uyarısı, yerel deneniyor:', e);
@@ -214,28 +230,53 @@ class AuthService {
       return { success: false, message: 'Hatalı şifre girdiniz. Lütfen tekrar deneyin.' };
     }
 
+    const merged = Array.from(new Set([...(user.favorites || []), ...guestFavs]));
+    user.favorites = merged;
+    this.updateUser(user);
     if (guestFavs.length > 0) {
-      const merged = Array.from(new Set([...(user.favorites || []), ...guestFavs]));
-      user.favorites = merged;
-      this.updateUser(user);
       localStorage.removeItem(this.STORAGE_GUEST_FAVS);
     }
 
-    this.setCurrentUser(user);
     return { success: true, user: user };
   }
 
   setCurrentUser(user) {
+    if (!user) {
+      localStorage.removeItem(this.STORAGE_ACTIVE_USER);
+      return;
+    }
     localStorage.setItem(this.STORAGE_ACTIVE_USER, JSON.stringify(user));
   }
 
   updateUser(updatedUser) {
+    if (!updatedUser) return;
     const users = this.getUsers();
-    const index = users.findIndex(u => u.id === updatedUser.id);
+    const index = users.findIndex(u => 
+      (updatedUser.id && u.id === updatedUser.id) ||
+      (updatedUser.email && u.email && u.email.toLowerCase() === updatedUser.email.toLowerCase())
+    );
+
     if (index !== -1) {
-      users[index] = updatedUser;
-      this.saveUsers(users);
-      this.setCurrentUser(updatedUser);
+      users[index] = { ...users[index], ...updatedUser };
+    } else {
+      users.push(updatedUser);
+    }
+    this.saveUsers(users);
+    this.setCurrentUser(updatedUser);
+
+    // Sync to Supabase user_metadata if available
+    const sb = window.AntinDB ? window.AntinDB.client : null;
+    if (sb && sb.auth && updatedUser.favorites) {
+      sb.auth.getUser().then(({ data }) => {
+        if (data && data.user) {
+          sb.auth.updateUser({
+            data: {
+              username: updatedUser.username,
+              favorites: updatedUser.favorites
+            }
+          }).catch(err => console.warn('Supabase metadata senkronizasyon uyarısı:', err));
+        }
+      }).catch(() => {});
     }
   }
 
@@ -276,7 +317,7 @@ class AuthService {
     let isFavorited = false;
 
     if (currentUser) {
-      let favs = currentUser.favorites || [];
+      let favs = Array.isArray(currentUser.favorites) ? [...currentUser.favorites] : [];
       if (favs.includes(gameId)) {
         favs = favs.filter(id => id !== gameId);
         isFavorited = false;
@@ -377,6 +418,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update Header Auth Status Display
   function updateAuthUI() {
     const currentUser = auth.getCurrentUser();
+    const adminHeaderBtn = document.getElementById('adminHeaderBtn');
+
     if (currentUser) {
       if (authLoggedOut) authLoggedOut.style.display = 'none';
       if (authLoggedIn) authLoggedIn.style.display = 'flex';
@@ -389,6 +432,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (syncDot) {
         syncDot.className = 'sync-dot';
       }
+
+      // Admin Kontrolü
+      if (adminHeaderBtn) {
+        if (window.AntinDB && window.AntinDB.isAdmin(currentUser)) {
+          adminHeaderBtn.style.display = 'inline-flex';
+        } else {
+          adminHeaderBtn.style.display = 'none';
+        }
+      }
     } else {
       if (authLoggedOut) authLoggedOut.style.display = 'flex';
       if (authLoggedIn) authLoggedIn.style.display = 'none';
@@ -396,6 +448,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (syncStatusText) syncStatusText.textContent = 'Favoriler tarayıcıya kayıtlı';
       if (syncDot) {
         syncDot.className = 'sync-dot offline';
+      }
+
+      if (adminHeaderBtn) {
+        adminHeaderBtn.style.display = 'none';
       }
     }
 
@@ -670,18 +726,61 @@ document.addEventListener('DOMContentLoaded', () => {
   // Supabase Auth State Dinleyicisi
   if (window.AntinDB && window.AntinDB.client) {
     window.AntinDB.client.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        localStorage.removeItem(auth.STORAGE_ACTIVE_USER);
+        updateAuthUI();
+        return;
+      }
       if (session && session.user) {
         const metaUser = session.user.user_metadata?.username || session.user.email.split('@')[0];
         const active = auth.getCurrentUser() || {};
-        auth.setCurrentUser({
+        const metaFavs = Array.isArray(session.user.user_metadata?.favorites) ? session.user.user_metadata.favorites : [];
+        const activeFavs = Array.isArray(active.favorites) ? active.favorites : [];
+        const mergedFavs = Array.from(new Set([...metaFavs, ...activeFavs]));
+
+        const updated = {
           ...active,
           id: session.user.id,
           username: metaUser,
-          email: session.user.email
-        });
+          email: session.user.email,
+          favorites: mergedFavs
+        };
+        auth.updateUser(updated);
         updateAuthUI();
       }
     });
+  }
+
+  // Canlı Duyuru Bandı Kontrolü
+  function checkAnnouncement() {
+    const banner = document.getElementById('siteAnnouncementBanner');
+    const textEl = document.getElementById('announcementText');
+    const closeBtn = document.getElementById('announcementCloseBtn');
+    if (!banner || !textEl) return;
+
+    const data = window.AntinDB ? window.AntinDB.getBroadcast() : null;
+    if (data && data.active && data.text) {
+      textEl.textContent = data.text;
+      banner.style.display = 'flex';
+    } else {
+      banner.style.display = 'none';
+    }
+
+    if (closeBtn) {
+      closeBtn.onclick = () => {
+        banner.style.display = 'none';
+      };
+    }
+  }
+
+  window.addEventListener('antin_broadcast_changed', () => {
+    checkAnnouncement();
+  });
+  checkAnnouncement();
+
+  // Canlı Oyuncu Takibi (Presence) Başlat
+  if (window.AntinDB && window.AntinDB.initPresence) {
+    window.AntinDB.initPresence({ page: 'Ana Sayfa' });
   }
 
   // Initial Load
