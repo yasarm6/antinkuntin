@@ -82,3 +82,6 @@ AntinKuntin/
    - Adım 3: Depo Başlatma ve Bağlama (`git init`, `git branch -M main`, `git remote add origin <url>`).
    - Adım 4: Güncelleme Rutini (`git add potatobros.html`, `git commit -m "mesaj"`, `git push origin main`).
    - Güvenlik ve Kimlik Doğrulama: Tarayıcı üzerinden Git Credential Manager (GCM) ile tek tıkla oturum açma akışı.
+5. **Canlı GitHub Senkronizasyonu (Başarıyla Pushlandı - Commit `5c672e8`)**:
+   - `potatobros.html`, `admin.html`, `app.js`, `supabaseClient.js`, `index.html` ve `style.css` üzerindeki tüm geliştirmeler doğrudan `https://github.com/yasarm6/antinkuntin.git` (`main` branch) adresine başarıyla pushlandı.
+   - GitHub Pages yayını birkaç dakika içinde yeni sürümüyle dünya çapında aktif hale gelecektir.
