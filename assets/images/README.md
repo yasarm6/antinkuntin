@@ -17,3 +17,4 @@ karakterImg.onload = () => {
   ctx.drawImage(karakterImg, x, y, genislik, yukseklik);
 };
 ```
+

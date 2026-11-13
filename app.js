@@ -11,7 +11,7 @@ const GAMES_DATA = [
     tag: 'Aksiyon & Hayatta Kalma',
     category: 'games',
     emoji: '🥔',
-    isNew: true,
+    isNew: false,
     color: '#0284c7',
     iconBg: '#e0f2fe',
     desc: 'Brotato tarzı hızlı arena aksiyonu! Dalgadan dalgaya düşmanları biç, patates gücünü artır ve sonuna kadar hayatta kal.',
@@ -25,7 +25,7 @@ const GAMES_DATA = [
     emoji: '⏳',
     color: '#eab308',
     iconBg: '#fef3c7',
-    desc: 'Neal.fun klasiği! 500\'den fazla element, lav, su, elektrik, asit ve yaşam formlarıyla piksel deneyleri yap.',
+    desc: '500\'den fazla element, lav, su, elektrik, asit ve yaşam formlarıyla piksel deneyleri yap.',
     url: 'games/kum-havuzu/index.html'
   },
   {
@@ -133,9 +133,9 @@ class AuthService {
           email: cleanEmail,
           password: password,
           options: {
-            data: { 
+            data: {
               username: cleanUsername,
-              favorites: guestFavs 
+              favorites: guestFavs
             }
           }
         });
@@ -251,7 +251,7 @@ class AuthService {
   updateUser(updatedUser) {
     if (!updatedUser) return;
     const users = this.getUsers();
-    const index = users.findIndex(u => 
+    const index = users.findIndex(u =>
       (updatedUser.id && u.id === updatedUser.id) ||
       (updatedUser.email && u.email && u.email.toLowerCase() === updatedUser.email.toLowerCase())
     );
@@ -276,14 +276,14 @@ class AuthService {
             }
           }).catch(err => console.warn('Supabase metadata senkronizasyon uyarısı:', err));
         }
-      }).catch(() => {});
+      }).catch(() => { });
     }
   }
 
   async logout() {
     const sb = window.AntinDB ? window.AntinDB.client : null;
     if (sb) {
-      try { await sb.auth.signOut(); } catch (e) {}
+      try { await sb.auth.signOut(); } catch (e) { }
     }
     localStorage.removeItem(this.STORAGE_ACTIVE_USER);
   }
@@ -423,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentUser) {
       if (authLoggedOut) authLoggedOut.style.display = 'none';
       if (authLoggedIn) authLoggedIn.style.display = 'flex';
-      
+
       const displayName = currentUser.username || currentUser.email.split('@')[0];
       if (userNameDisplay) userNameDisplay.textContent = displayName;
       if (userAvatarText) userAvatarText.textContent = displayName.charAt(0).toUpperCase();
@@ -515,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Category filter
       const matchesCategory = currentFilter === 'all' || game.category === currentFilter;
       // Search filter
-      const matchesSearch = searchQuery === '' || 
+      const matchesSearch = searchQuery === '' ||
         game.title.toLowerCase().includes(searchQuery) ||
         game.desc.toLowerCase().includes(searchQuery) ||
         game.tag.toLowerCase().includes(searchQuery);
@@ -577,7 +577,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = btn.getAttribute('data-toggle-fav');
         const game = GAMES_DATA.find(g => g.id === id);
         const res = auth.toggleFavorite(id);
-        
+
         renderFavorites();
         renderGameGrid();
 

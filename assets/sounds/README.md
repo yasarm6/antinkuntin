@@ -16,3 +16,4 @@ const atesSesi = new Audio('assets/sounds/shoot.mp3');
 atesSesi.currentTime = 0; // Başa sar
 atesSesi.play();
 ```
+
