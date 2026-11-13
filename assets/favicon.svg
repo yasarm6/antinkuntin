@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="favGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF5E62"/>
+      <stop offset="50%" stop-color="#FF9966"/>
+      <stop offset="100%" stop-color="#FFD166"/>
+    </linearGradient>
+  </defs>
+
+  <!-- AntinKuntin Maskot Gövdesi -->
+  <rect x="2" y="2" width="60" height="60" rx="18" fill="url(#favGrad)" stroke="#ffffff" stroke-width="2"/>
+  
+  <!-- Gözler -->
+  <circle cx="22" cy="26" r="6" fill="#1e1e24" />
+  <circle cx="24" cy="24" r="2" fill="#ffffff" />
+  <circle cx="42" cy="26" r="6" fill="#1e1e24" />
+  <circle cx="44" cy="24" r="2" fill="#ffffff" />
+  
+  <!-- Neşeli Çarpık Gülümseme -->
+  <path d="M 20 40 Q 32 49 44 38" stroke="#1e1e24" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+  
+  <!-- Sevimli Parıltı / Anten -->
+  <circle cx="52" cy="12" r="4.5" fill="#FFF275" stroke="#FFA400" stroke-width="1"/>
+</svg>

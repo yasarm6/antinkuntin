@@ -37,6 +37,9 @@ AntinKuntin/
 ├── supabaseClient.js       # Supabase Client, Leaderboard, Presence ve Realtime servisleri
 ├── assets/
 │   ├── logo.svg            # AntinKuntin maskotu ve tipografisi
+│   ├── favicon.svg         # Modern sevimli maskot tabanlı SVG sekme simgesi
+│   ├── sounds/             # Oyun ses efektleri (.mp3, .wav) ve arka plan müzikleri
+│   ├── images/             # Karakter sprite'ları, nesneler ve arkaplan görselleri
 │   └── icons/              # Özel SVG ikonlar
 ├── games/                  # Yerelleştirilmiş interaktif mini deneyimler
 │   ├── kum-havuzu/         # 500+ elementli fizik & kimya simülasyonu
@@ -85,3 +88,7 @@ AntinKuntin/
 5. **Canlı GitHub Senkronizasyonu (Başarıyla Pushlandı - Commit `5c672e8`)**:
    - `potatobros.html`, `admin.html`, `app.js`, `supabaseClient.js`, `index.html` ve `style.css` üzerindeki tüm geliştirmeler doğrudan `https://github.com/yasarm6/antinkuntin.git` (`main` branch) adresine başarıyla pushlandı.
    - GitHub Pages yayını birkaç dakika içinde yeni sürümüyle dünya çapında aktif hale gelecektir.
+6. **Ses, Görsel ve Favicon Mimarisi Eklendi (13 Kasım 2026)**:
+   - **Favicon**: Projenin orijinal sevimli maskotundan 64x64 boyutunda vektörel `assets/favicon.svg` üretildi ve `index.html`, `admin.html`, `potatobros.html` sayfalarının `<head>` alanına bağlandı.
+   - **Ses Varlıkları (`assets/sounds/`)**: HTML5 Audio & Web Audio standartları belirlendi; `.mp3` ve `.wav` dosyaları için klasör ve rehber hazırlandı.
+   - **Görsel Varlıkları (`assets/images/`)**: Canvas `ctx.drawImage` ile 2D sprite ve arkaplan kullanım yönergeleri oluşturuldu.
